@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" href="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" type="image/png">
+    <meta name="theme-color" content="#121212">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        roboto: ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#E700FE',
+                        secondary: '#00C3FF',
+                        background: '#121212',
+                        'card-bg': '#2d2d39',
+                        'input-bg': '#1e1e26',
+                        'text-main': '#fff',
+                        'text-muted': '#ccc',
+                        'border-light': '#444',
+                        error: '#ff6b6b',
+                        success: '#51cf66',
+                        'chat-bubble-user': '#E700FE',
+                        'chat-bubble-other': '#2d2d39',
+                        'chat-text-user': '#fff',
+                        'chat-text-other': '#fff',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(231, 0, 254, 0.3)',
+                        'card': '0 5px 20px rgba(0, 0, 0, 0.4)',
+                        'header': '0 2px 10px rgba(0, 0, 0, 0.5)',
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #E700FE;
+            --secondary-color: #00C3FF;
+            --background-color: #121212;
+            --card-background-color: #2d2d39;
+            --input-background-color: #1e1e26;
+            --text-color: #fff;
+            --text-muted-color: #ccc;
+            --border-color-light: #444;
+            --error-color: #ff6b6b;
+            --success-color: #51cf66;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            touch-action: manipulation;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea {
+            font-size: 16px !important;
+        }
+
+        #chat-input {
+            font-size: 0.95rem !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c400db;
+        }
+
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: calc(50px + 0.8rem) 0.6rem 0.8rem 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            background-color: var(--card-background-color);
+        }
+
+        .message-container {
+            display: flex;
+            max-width: 85%;
+            gap: 0.5rem;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .message-container.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-container.other {
+            align-self: flex-start;
+        }
+
+        .message-pfp {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 9999px;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--primary-color);
+        }
+
+        .message-bubble {
+            padding: 0.6rem 1rem;
+            word-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            min-width: 0;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+            background-color: var(--chat-bubble-other);
+            color: var(--chat-text-other);
+            border-bottom-left-radius: 0.4rem;
+        }
+
+        .message-bubble.user {
+            background-color: var(--chat-bubble-user);
+            color: var(--chat-text-user);
+            border-bottom-right-radius: 0.4rem;
+            border-bottom-left-radius: 1.25rem;
+        }
+
+        .message-content {
+            font-size: 0.92rem;
+            line-height: 1.45;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .message-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 0.8rem;
+            margin-top: 0.3rem;
+            margin-bottom: 0.3rem;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            display: block;
+        }
+
+        .message-meta-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.15rem;
+            margin-top: 0.25rem;
+            width: 100%;
+        }
+
+        .message-meta {
+            font-size: 0.65rem;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .message-username {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.15rem;
+            display: block;
+        }
+
+        #chat-input-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 0.8rem;
+            border-top: 1px solid var(--border-color-light);
+            background-color: var(--input-background-color);
+            flex-shrink: 0;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            color: var(--text-color);
+            background-color: var(--input-background-color);
+            border: 1px solid var(--border-color-light);
+            border-radius: 1.5rem;
+            padding: 0.7rem 1rem;
+            min-width: 0;
+        }
+
+        #chat-input::placeholder {
+            color: var(--text-muted-color);
+            opacity: 0.7;
+        }
+
+        #image-upload-button,
+        #send-button {
+            flex-shrink: 0;
+            padding: 0.7rem;
+            border-radius: 9999px;
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+
+        #image-upload-button:hover,
+        #send-button:hover {
+            background-color: #c400db;
+        }
+
+        #image-upload-button:active,
+        #send-button:active {
+            transform: scale(0.95);
+        }
+
+        #image-upload-button:disabled,
+        #send-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background-color: var(--primary-color);
+            transform: scale(1);
+        }
+
+        #image-upload-button i,
+        #send-button i {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: 2px solid var(--primary-color) !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(231, 0, 254, 0.4);
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--primary-color) !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(231, 0, 254, 0.4);
+        }
+
+        #image-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.92);
+            z-index: 1060;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            cursor: pointer;
+        }
+
+        #image-modal img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #user-info-header {
+            overflow: hidden;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        #chat-username {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+        }
+
+        .loading-text,
+        .error-text-display,
+        .welcome-text {
+            text-align: center;
+            padding: 2rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .loading-text,
+        .welcome-text {
+            color: var(--text-muted-color);
+        }
+
+        .welcome-text strong {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .error-text-display {
+            color: var(--error-color);
+        }
+
+        .error-text-display a {
+            color: var(--primary-color);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .error-text-display a:hover {
+            color: #c400db;
+        }
+
+        .suspended-message .message-bubble {
+            background-color: rgba(100, 100, 100, 0.2);
+            border-color: rgba(150, 150, 150, 0.2);
+        }
+
+        .suspended-message .message-content,
+        .suspended-message .message-username {
+            color: var(--text-muted-color);
+            font-style: italic;
+        }
+
+        .unsent-message .message-bubble {
+            background-color: rgba(100, 100, 100, 0.2);
+            border-color: rgba(150, 150, 150, 0.2);
+        }
+
+        .unsent-message .message-content {
+            color: var(--text-muted-color) !important;
+            font-style: italic !important;
+            font-size: 0.85rem;
+        }
+
+        .unsend-button {
+            background-color: transparent;
+            color: inherit;
+            border: none;
+            border-radius: 50%;
+            width: 1.1rem;
+            height: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out, color 0.2s, background-color 0.2s;
+            padding: 0.1rem;
+            margin-left: 0.2rem;
+            z-index: 5;
+            vertical-align: middle;
+        }
+
+        .message-container.user .message-bubble:hover .unsend-button {
+            opacity: 0.6;
+        }
+
+        .unsend-button:hover {
+            opacity: 1;
+            color: var(--error-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .unsend-button i {
+            width: 0.8rem;
+            height: 0.8rem;
+            stroke-width: 2;
+        }
+
+        .reply-button {
+            background-color: transparent;
+            color: inherit;
+            border: none;
+            border-radius: 50%;
+            width: 1.1rem;
+            height: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out, color 0.2s, background-color 0.2s;
+            padding: 0.1rem;
+            margin-left: 0.2rem;
+            z-index: 5;
+            vertical-align: middle;
+        }
+
+        .message-bubble:hover .reply-button {
+            opacity: 0.7;
+        }
+
+        .reply-button:hover {
+            opacity: 1;
+            color: var(--secondary-color);
+            background-color: rgba(0, 195, 255, 0.1);
+        }
+
+        .reply-button i {
+            width: 0.8rem;
+            height: 0.8rem;
+            stroke-width: 2;
+        }
+
+        .reply-quote {
+            font-size: 0.78rem;
+            padding: 0.3rem 0.6rem;
+            margin: -0.2rem -0.5rem 0.5rem -0.5rem;
+            border-left: 3px solid var(--secondary-color);
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 0.3rem;
+            opacity: 0.85;
+        }
+
+        .reply-quote-sender {
+            font-weight: 600;
+            color: var(--secondary-color);
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+
+        .reply-quote-content {
+            color: var(--text-muted-color);
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .reaction-trigger-button {
+            background-color: transparent;
+            color: inherit;
+            border: none;
+            border-radius: 50%;
+            width: 1.1rem;
+            height: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out, color 0.2s, background-color 0.2s;
+            padding: 0.1rem;
+            margin-left: 0.2rem;
+            z-index: 5;
+            vertical-align: middle;
+        }
+
+        .message-bubble:hover .reaction-trigger-button {
+            opacity: 0.7;
+        }
+
+        .reaction-trigger-button:hover {
+            opacity: 1;
+            color: var(--secondary-color);
+            background-color: rgba(0, 195, 255, 0.1);
+        }
+
+        .reaction-trigger-button i {
+            width: 0.85rem;
+            height: 0.85rem;
+            stroke-width: 2;
+        }
+
+        .reactions-display-area {
+            margin-top: 0.3rem;
+            margin-left: -0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .reaction-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.15rem;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.75rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: default;
+            line-height: 1;
+        }
+
+        .reaction-chip .emoji {
+            font-size: 0.75rem;
+            margin-right: 0.05rem;
+        }
+
+        .reaction-chip .count {
+            font-weight: 500;
+        }
+
+        .app-header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: rgba(30, 30, 40, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color-light);
+            z-index: 1000;
+            height: 50px;
+        }
+
+        .app-header-bar .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header-bar .header-title-group img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--primary-color);
+            object-fit: cover;
+        }
+
+        .app-header-bar .header-main-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .app-header-bar .header-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted-color);
+            padding: 8px;
+            margin-top: 0;
+            box-shadow: none;
+        }
+
+        .app-header-bar .header-actions button:hover {
+            color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .app-header-bar .header-actions button i {
+            width: 22px;
+            height: 22px;
+        }
+
+        #reply-preview-area {
+            background-color: var(--input-background-color);
+            border-top: 1px solid var(--border-color-light);
+            border-bottom: 1px solid var(--border-color-light);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            bottom: 4.5rem;
+            z-index: 10;
+        }
+
+        #reply-preview-area .reply-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        #reply-preview-area .reply-preview-header span {
+            font-size: 0.75rem;
+            color: var(--text-muted-color);
+            font-weight: 500;
+        }
+
+        #reply-preview-area .reply-preview-content {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #reaction-picker {
+            position: absolute;
+            z-index: 30;
+            background-color: var(--card-background-color);
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            gap: 0.3rem;
+            border: 1px solid var(--border-color-light);
+        }
+
+        .reaction-emoji-button {
+            font-size: 1.2rem;
+            padding: 0.3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .reaction-emoji-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 600px) {
+            .app-header-bar {
+                height: 45px;
+                padding: 5px 10px;
+            }
+
+            .app-header-bar .header-main-title {
+                font-size: 1rem;
+            }
+
+            .app-header-bar .header-title-group img {
+                width: 26px;
+                height: 26px;
+            }
+
+            .app-header-bar .header-actions button i {
+                width: 20px;
+                height: 20px;
+            }
+
+            #chat-messages {
+                padding: calc(45px + 0.8rem) 0.6rem 0.8rem 0.6rem;
+            }
+
+            #chat-input-form {
+                padding: 0.7rem 0.7rem;
+            }
+
+            #reply-preview-area {
+                bottom: 4.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen">
+    <header class="app-header-bar">
+        <div class="header-title-group">
+            <a href="/" class="text-text-main hover:text-primary p-1 rounded-full" title="Back to Main">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </a>
+            <h1 class="header-main-title">Global Chat</h1>
+			<img src="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" alt="Logo" class="w-8 h-8 rounded-lg">
+        </div>
+        <div id="user-info-header" class="flex items-center gap-2">
+            <span id="chat-username" class="text-sm text-text-muted font-medium">Loading...</span>
+            <img id="user-pfp-header" src="" alt="PFP" class="w-7 h-7 rounded-full hidden border border-primary/40 object-cover bg-gray-700 flex-shrink-0">
+        </div>
+    </header>
+
+    <div id="chat-messages" class="flex-grow">
+        <div class="loading-text">Loading messages...</div>
+    </div>
+
+    <div id="reply-preview-area" class="hidden">
+        <div class="reply-preview-header">
+            <span>Replying to <strong id="reply-preview-username" class="text-secondary">User</strong></span>
+            <button id="cancel-reply-button" title="Cancel Reply" class="p-1 text-text-muted hover:text-error rounded-full">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div id="reply-preview-content" class="reply-preview-content">
+            Message content...
+        </div>
+    </div>
+
+    <form id="chat-input-form" class="sticky bottom-0">
+        <button type="button" id="image-upload-button" title="Send Image" class="flex-shrink-0">
+            <i data-lucide="paperclip" class="w-5 h-5"></i>
+        </button>
+        <input type="file" id="chat-image-input" accept="image/*" class="hidden">
+
+        <input type="text" id="chat-input" placeholder="Type message..." autocomplete="off">
+
+        <button type="submit" id="send-button" title="Send" class="flex-shrink-0">
+            <i data-lucide="send" class="w-5 h-5"></i>
+        </button>
+    </form>
+
+    <div id="image-modal" onclick="this.style.display='none'">
+        <img id="modal-image-content" src="" alt="Full Image" onclick="event.stopPropagation()">
+    </div>
+
+    <div id="reaction-picker" class="hidden" style="display: none;">
+        <button class="reaction-emoji-button" data-emoji="null" title="Remove Reaction">🚫</button>
+        <button class="reaction-emoji-button" data-emoji="👍">👍</button>
+        <button class="reaction-emoji-button" data-emoji="❤️">❤️</button>
+        <button class="reaction-emoji-button" data-emoji="😂">😂</button>
+        <button class="reaction-emoji-button" data-emoji="😮">😮</button>
+        <button class="reaction-emoji-button" data-emoji="😢">😢</button>
+        <button class="reaction-emoji-button" data-emoji="😠">😠</button>
+    </div>
+
+    <div id="unsend-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-card-bg rounded-xl border border-border-light max-w-md w-full">
+            <div class="p-6">
+                <div class="text-center mb-4">
+                    <div class="w-12 h-12 mx-auto mb-3 bg-red-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i data-lucide="trash-2" class="w-6 h-6 text-error"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-main mb-2">Unsend Message</h3>
+                    <p class="text-text-muted text-sm">Are you sure you want to unsend this message? This action cannot be undone.</p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="cancel-unsend-btn" class="flex-1 px-4 py-2 bg-input-bg hover:bg-gray-600 text-text-main rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                    <button id="confirm-unsend-btn" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+                        Unsend
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const api_url = '/api';
+        const chatMessagesContainer = document.getElementById('chat-messages');
+        const chatInputForm = document.getElementById('chat-input-form');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const imageUploadButton = document.getElementById('image-upload-button');
+        const chatImageInput = document.getElementById('chat-image-input');
+        const chatUsername = document.getElementById('chat-username');
+        const userPfpHeader = document.getElementById('user-pfp-header');
+        const imageModal = document.getElementById('image-modal');
+        const modalImageContent = document.getElementById('modal-image-content');
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let messagePollingInterval = null;
+        const DEFAULT_AVATAR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234b5563'/%3E%3Cpath d='M50 62.5c-12.4 0-22.5 10.1-22.5 22.5v2.5h45v-2.5c0-12.4-10.1-22.5-22.5-22.5z' fill='%239ca3af'/%3E%3Ccircle cx='50' cy='42.5' r='15' fill='%239ca3af'/%3E%3C/svg%3E";
+        let timeFormatter;
+        let initialLoad = true;
+        let isNearBottomBeforeFetch = true;
+        let currentReplyTarget = null;
+        const replyPreviewArea = document.getElementById('reply-preview-area');
+        const replyPreviewUsername = document.getElementById('reply-preview-username');
+        const replyPreviewContent = document.getElementById('reply-preview-content');
+        const cancelReplyButton = document.getElementById('cancel-reply-button');
+        const reactionPicker = document.getElementById('reaction-picker');
+        let currentReactionTarget = null;
+
+        try {
+            timeFormatter = new Intl.DateTimeFormat('en-PH', {
+                timeZone: 'Asia/Manila',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (e) {
+            console.error("Failed to initialize DateTimeFormat", e);
+            timeFormatter = {
+                format: (date) => date.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                })
+            };
+        }
+
+        function displayError(message) {
+            console.error("Chat Error:", message);
+            stopPolling();
+            chatMessagesContainer.innerHTML = `<div class="error-text-display">${message}</div>`;
+        }
+
+        function scrollToBottom(force = false) {
+            const threshold = 150;
+            const shouldScroll = force || isNearBottomBeforeFetch;
+            if (shouldScroll) {
+                const behavior = (initialLoad || force) ? 'instant' : 'smooth';
+                chatMessagesContainer.scrollTo({
+                    top: chatMessagesContainer.scrollHeight,
+                    behavior: behavior
+                });
+            }
+        }
+
+        function formatTimestamp(isoString) {
+            if (!isoString) return '';
+            try {
+                const dateStr = isoString.includes('T') ? isoString : isoString.replace(' ', 'T') + (isoString.endsWith('Z') ? '' : 'Z');
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) {
+                    console.warn("Invalid date string:", isoString);
+                    const simpleDate = new Date(isoString);
+                    if (!isNaN(simpleDate.getTime())) {
+                        return timeFormatter.format(simpleDate);
+                    }
+                    return "Invalid Time";}
+                return timeFormatter.format(date);
+            } catch (e) {
+                console.error("Error formatting timestamp:", isoString, e);
+                return 'Time Error';
+            }
+        }
+
+        function displayMessages(messages) {
+            if (!currentUser) return;
+            const threshold = 150;
+            isNearBottomBeforeFetch = chatMessagesContainer.scrollHeight - chatMessagesContainer.clientHeight <= chatMessagesContainer.scrollTop + threshold;
+            
+            if (!Array.isArray(messages) || messages.length === 0) {
+                if (initialLoad && currentUser) {
+                    chatMessagesContainer.innerHTML = `<div class="welcome-text">Welcome <strong>${currentUser.username || 'User'}</strong> to ShareBoost Global Chat!</div>`;
+                    initialLoad = false;
+                }
+                return;
+            }
+            
+            messages.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+            let lastDisplayedId = 0;
+            const existingMessages = chatMessagesContainer.querySelectorAll('.message-container[data-message-id]');
+            if (existingMessages.length > 0) {
+                lastDisplayedId = Math.max(0, ...Array.from(existingMessages).map(el => parseInt(el.dataset.messageId || '0')));
+            } else {
+                if (messages.length > 0 || initialLoad) chatMessagesContainer.innerHTML = '';
+            }
+            let addedNewMessage = false;
+            const fragment = document.createDocumentFragment();
+            let requiresIconCreation = false;
+            messages.forEach(msg => {
+                if (!msg || !msg.id || msg.id <= lastDisplayedId) return;
+                const isUserMessage = String(msg.user_id) === String(currentUser.userId) || parseInt(msg.user_id) === parseInt(currentUser.userId);
+                const isSuspended = msg.is_suspended === true;
+                const isUnsent = msg.is_unsent === true;
+                const hasReplyInfo = msg.repliedMessage !== null && msg.repliedMessage !== undefined;
+                const hasReactions = msg.reactions && msg.reactions.length > 0;
+                let pfpSrc = isUserMessage ? (currentUser.pfp_url || DEFAULT_AVATAR_SVG) : (msg.pfp_url || DEFAULT_AVATAR_SVG);
+                const messageContainer = document.createElement('div');
+                messageContainer.dataset.messageId = msg.id;
+                messageContainer.dataset.username = msg.username || 'User';
+                messageContainer.dataset.message = msg.message || (msg.image_url ? '[Image]' : '');
+                messageContainer.classList.add('message-container', isUserMessage ? 'user' : 'other');
+                if (isSuspended && !isUserMessage) messageContainer.classList.add('suspended-message');
+                else if (isUnsent) messageContainer.classList.add('unsent-message');
+                const messageContentWrapper = document.createElement('div');
+                messageContentWrapper.classList.add('flex', 'flex-col', 'items-start', 'w-full');
+                const pfpImg = document.createElement('img');
+                pfpImg.src = pfpSrc;
+                pfpImg.alt = "PFP";
+                pfpImg.classList.add('message-pfp');
+                pfpImg.onerror = () => {
+                    pfpImg.src = DEFAULT_AVATAR_SVG;
+                };
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add('message-bubble', isUserMessage ? 'user' : 'other');
+                let bubbleContentHTML = '';
+                if (hasReplyInfo && !isUnsent && !isSuspended) {
+                    const repliedUsername = msg.repliedMessage.username || 'Unknown User';
+                    const repliedContent = msg.repliedMessage.message || '[Original message unavailable]';
+                    bubbleContentHTML += ` <div class="reply-quote"> <div class="reply-quote-sender">${repliedUsername}</div> <div class="reply-quote-content">${repliedContent}</div> </div>`;
+                }
+                if (!isUserMessage && msg.username && !isUnsent && !isSuspended) {
+                    bubbleContentHTML += `<span class="message-username">${msg.username || 'User'}</span>`;
+                }
+                if (!isUnsent && !isSuspended && msg.image_url) {
+                    bubbleContentHTML += `<img src="${msg.image_url}" alt="Chat Image" class="message-image" onclick="event.stopPropagation(); showImageModal('${msg.image_url}')">`;
+                }
+                if (msg.message && !isUnsent && !isSuspended) {
+                    const messageSpan = document.createElement('span');
+                    messageSpan.classList.add('message-content');
+                    messageSpan.textContent = msg.message;
+                    bubbleContentHTML += messageSpan.outerHTML;
+                } else if (isUnsent) {
+                    const messageSpan = document.createElement('span');
+                    messageSpan.classList.add('message-content', 'text-text-muted', 'italic');
+                    messageSpan.style.fontSize = '0.85rem';
+                    messageSpan.textContent = msg.message;
+                    bubbleContentHTML += messageSpan.outerHTML;
+                } else if (isSuspended) {
+                    const messageSpan = document.createElement('span');
+                    messageSpan.classList.add('message-content', 'text-text-muted', 'italic');
+                    messageSpan.textContent = msg.message;
+                    bubbleContentHTML += messageSpan.outerHTML;
+                } else if (!msg.image_url && !isSuspended && !isUnsent) {
+                    bubbleContentHTML += `<span class="message-content text-text-muted italic">[Empty]</span>`;
+                }
+                let metaContainerHTML = '<div class="message-meta-container">';
+                if (!isUnsent && !isSuspended) {
+                    metaContainerHTML += ` <button class="reaction-trigger-button" title="React" data-message-id="${msg.id}"> <i data-lucide="smile-plus"></i> </button> `;
+                    metaContainerHTML += ` <button class="reply-button" title="Reply" data-reply-id="${msg.id}"> <i data-lucide="reply"></i> </button> `;
+                    requiresIconCreation = true;
+                }
+                if (isUserMessage && !isUnsent && !isSuspended) {
+                    metaContainerHTML += ` <button class="unsend-button" title="Unsend Message" data-unsend-id="${msg.id}"> <i data-lucide="trash-2"></i> </button> `;
+                    requiresIconCreation = true;
+                }
+                metaContainerHTML += `<span class="message-meta">${formatTimestamp(msg.timestamp)}</span>`;
+                metaContainerHTML += '</div>';
+                messageBubble.innerHTML = bubbleContentHTML + metaContainerHTML;
+                messageContentWrapper.appendChild(messageBubble);
+                if (hasReactions && !isUnsent) {
+                    const reactionsArea = document.createElement('div');
+                    reactionsArea.classList.add('reactions-display-area');
+                    msg.reactions.forEach(reaction => {
+                        const chip = document.createElement('span');
+                        chip.classList.add('reaction-chip');
+                        chip.innerHTML = `<span class="emoji">${reaction.emoji}</span> <span class="count">${reaction.count}</span>`;
+                        reactionsArea.appendChild(chip);
+                    });
+                    messageContentWrapper.appendChild(reactionsArea);
+                }
+                messageContainer.appendChild(pfpImg);
+                messageContainer.appendChild(messageContentWrapper);
+                fragment.appendChild(messageContainer);
+                addedNewMessage = true;
+            });
+            if (addedNewMessage) {
+                chatMessagesContainer.appendChild(fragment);
+                if (requiresIconCreation) {
+                    lucide.createIcons();
+                }
+                scrollToBottom();
+            } else if (initialLoad && messages.length === 0 && existingMessages.length === 0 && currentUser) {
+                chatMessagesContainer.innerHTML = `<div class="welcome-text">Welcome <strong>${currentUser.username || 'User'}</strong> to ShareBoost Global Chat!</div>`;
+            }
+            initialLoad = false;
+        }
+        let pendingUnsendMessageId = null;
+        const unsendModal = document.getElementById('unsend-modal');
+        const cancelUnsendBtn = document.getElementById('cancel-unsend-btn');
+        const confirmUnsendBtn = document.getElementById('confirm-unsend-btn');
+
+        function showUnsendModal(messageId) {
+            pendingUnsendMessageId = messageId;
+            unsendModal.classList.remove('hidden');
+            unsendModal.classList.add('flex');
+            hideReactionPicker();
+        }
+
+        cancelUnsendBtn.addEventListener('click', () => {
+            unsendModal.classList.add('hidden');
+            unsendModal.classList.remove('flex');
+            pendingUnsendMessageId = null;
+        });
+
+        confirmUnsendBtn.addEventListener('click', async () => {
+            if (!pendingUnsendMessageId) return;
+
+            const originalText = confirmUnsendBtn.textContent;
+            confirmUnsendBtn.disabled = true;
+            confirmUnsendBtn.textContent = 'Unsending...';
+
+            try {
+                await unsendMessage(pendingUnsendMessageId);
+            } finally {
+                unsendModal.classList.add('hidden');
+                unsendModal.classList.remove('flex');
+                confirmUnsendBtn.disabled = false;
+                confirmUnsendBtn.textContent = originalText;
+                pendingUnsendMessageId = null;
+            }
+        });
+
+        unsendModal.addEventListener('click', (e) => {
+            if (e.target.id === 'unsend-modal') {
+                unsendModal.classList.add('hidden');
+                unsendModal.classList.remove('flex');
+                pendingUnsendMessageId = null;
+            }
+        });
+
+        async function unsendMessage(messageId) {
+            if (!authToken || !messageId) return;
+            try {
+                const response = await fetch(`${api_url}/global/chat/message/${messageId}/unsend`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const responseData = await response.json().catch(() => null);
+                if (response.ok) {
+                    const messageElement = chatMessagesContainer.querySelector(`.message-container[data-message-id="${messageId}"]`);
+                    if (messageElement) {
+                        const messageBubble = messageElement.querySelector('.message-bubble');
+                        const metaContainer = messageBubble?.querySelector('.message-meta-container');
+                        const replyQuote = messageBubble?.querySelector('.reply-quote');
+                        const reactionsArea = messageElement.querySelector('.reactions-display-area');
+                        const newContentSpan = document.createElement('span');
+                        newContentSpan.classList.add('message-content');
+                        newContentSpan.textContent = responseData?.placeholder || `${currentUser.username} unsent a message`;
+                        newContentSpan.style.fontStyle = 'italic';
+                        newContentSpan.style.color = 'var(--color-text-muted, #9CA3AF)';
+                        newContentSpan.style.fontSize = '0.85rem';
+                        messageBubble.innerHTML = '';
+                        if (replyQuote) messageBubble.appendChild(replyQuote);
+                        messageBubble.appendChild(newContentSpan);
+                        if (metaContainer) {
+                            const unsendButton = metaContainer.querySelector('.unsend-button');
+                            const replyButton = metaContainer.querySelector('.reply-button');
+                            const reactionButton = metaContainer.querySelector('.reaction-trigger-button');
+                            if (unsendButton) unsendButton.remove();
+                            if (replyButton) replyButton.remove();
+                            if (reactionButton) reactionButton.remove();
+                            messageBubble.appendChild(metaContainer);
+                        }
+                        if (reactionsArea) reactionsArea.remove();
+                        messageElement.classList.add('unsent-message');
+                        messageElement.classList.remove('suspended-message');
+                    }
+                } else {
+                    const errorMsg = responseData?.error || `Failed to unsend (${response.status})`;
+                    if (response.status === 401) handleAuthError("Session expired. Cannot unsend message.");
+                    else if (response.status === 403 || response.status === 404) alert(`Error: ${errorMsg}`);
+                    else alert(`Error: ${errorMsg}`);
+                    if (response.status === 404) {
+                        const messageElement = chatMessagesContainer.querySelector(`.message-container[data-message-id="${messageId}"]`);
+                        if (messageElement) messageElement.remove();
+                    }
+                }
+            } catch (error) {
+                console.error("Unsend message error:", error);
+                alert("An error occurred while trying to unsend the message. Please check console.");
+            }
+        }
+
+        function showImageModal(imageUrl) {
+            if (imageModal && modalImageContent) {
+                modalImageContent.src = imageUrl;
+                imageModal.style.display = 'flex';
+                hideReactionPicker();
+            }
+        }
+        let lastMessageId = 0;
+        
+        async function fetchMessages() {
+            if (!authToken || !currentUser || document.hidden) return;
+            try {
+                const url = initialLoad 
+                    ? `${api_url}/global/chat/messages?limit=50`
+                    : `${api_url}/global/chat/messages?limit=20&after=${lastMessageId}`;
+                    
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (!response.ok) {
+                    if (response.status === 401) handleAuthError("Session expired.");
+                    else throw new Error(`Fetch fail (${response.status})`);
+                    return;
+                }
+                const messages = await response.json();
+                
+                if (messages.length > 0) {
+                    lastMessageId = Math.max(...messages.map(m => m.id), lastMessageId);
+                }
+                if (Array.isArray(messages)) {
+                    displayMessages(messages);
+                } else {
+                    console.warn("Non-array response:", messages);
+                    if (initialLoad && currentUser) {
+                        chatMessagesContainer.innerHTML = `<div class="welcome-text">Welcome <strong>${currentUser.username || 'User'}</strong> to ShareBoost Global Chat!</div>`;
+                        initialLoad = false;
+                    }
+                }
+            } catch (error) {
+                if (!document.hidden) console.error("Fetch error:", error);
+            }
+        }
+        async function sendTextMessage(message) {
+            const trimmedMessage = message.trim();
+            if (!authToken || !trimmedMessage) return;
+            setSendingState(true);
+            hideReactionPicker();
+            const payload = {
+                message: trimmedMessage
+            };
+            if (currentReplyTarget) {
+                payload.replyToMessageId = currentReplyTarget.id;
+            }
+            try {
+                const response = await fetch(`${api_url}/global/chat/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({
+                        error: `Send fail (${response.status})`
+                    }));
+                    if (response.status === 401) handleAuthError("Session expired.");
+                    else throw new Error(errorData.error || `Send failed (${response.status})`);
+                    return;
+                }
+                chatInput.value = '';
+                cancelReply();
+                await fetchMessages();
+                scrollToBottom(true);
+            } catch (error) {
+                console.error("Send text error:", error);
+                alert(`Send Error: ${error.message}`);
+            } finally {
+                setSendingState(false);
+            }
+        }
+        async function sendImageMessage(file) {
+            if (!authToken || !file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Select image file.');
+                chatImageInput.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image too large (Max 5MB).');
+                chatImageInput.value = '';
+                return;
+            }
+            setSendingState(true);
+            hideReactionPicker();
+            const formData = new FormData();
+            formData.append('chat_image', file);
+            if (currentReplyTarget) {
+                formData.append('replyToMessageId', currentReplyTarget.id);
+            }
+            try {
+                const response = await fetch(`${api_url}/global/chat/send-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({
+                        error: `Image send fail (${response.status})`
+                    }));
+                    if (response.status === 401) handleAuthError("Session expired.");
+                    else throw new Error(errorData.error || `Image send failed (${response.status})`);
+                    return;
+                }
+                cancelReply();
+                await fetchMessages();
+                scrollToBottom(true);
+            } catch (error) {
+                console.error("Image send error:", error);
+                alert(`Image Send Error: ${error.message}`);
+            } finally {
+                chatImageInput.value = '';
+                setSendingState(false);
+            }
+        }
+
+        function setSendingState(isSending) {
+            const isDisabled = isSending;
+            sendButton.disabled = isDisabled;
+            chatInput.disabled = isDisabled;
+            imageUploadButton.disabled = isDisabled;
+            const sendIconContainer = sendButton.querySelector('i[data-lucide]');
+            const uploadIconContainer = imageUploadButton.querySelector('i[data-lucide]');
+            const loadingIconHTML = '<i data-lucide="loader-circle" class="animate-spin w-5 h-5"></i>';
+            const sendIconHTML = '<i data-lucide="send" class="w-5 h-5"></i>';
+            const uploadIconHTML = '<i data-lucide="paperclip" class="w-5 h-5"></i>';
+            const targetSendIconHTML = isSending ? loadingIconHTML : sendIconHTML;
+            const targetUploadIconHTML = isSending ? loadingIconHTML : uploadIconHTML;
+            if (sendIconContainer && sendIconContainer.outerHTML !== targetSendIconHTML) sendIconContainer.outerHTML = targetSendIconHTML;
+            if (uploadIconContainer && uploadIconContainer.outerHTML !== targetUploadIconHTML) uploadIconContainer.outerHTML = targetUploadIconHTML;
+            if (isSending) lucide.createIcons();
+            else if (!isSending && (sendIconContainer?.dataset.lucide === 'loader-circle' || uploadIconContainer?.dataset.lucide === 'loader-circle')) lucide.createIcons();
+        }
+
+        function handleAuthError(message) {
+            console.error("Auth Error:", message);
+            stopPolling();
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+            displayError(`${message} Please <a href="/?login=true" class="text-primary hover:text-secondary underline font-semibold">login here</a>.`);
+            chatInputForm.style.display = 'none';
+            chatUsername.textContent = 'Not Logged In';
+            userPfpHeader.classList.add('hidden');
+            replyPreviewArea.classList.add('hidden');
+            cancelReply();
+            hideReactionPicker();
+        }
+
+        function stopPolling() {
+            if (messagePollingInterval) {
+                clearInterval(messagePollingInterval);
+                messagePollingInterval = null;
+            }
+        }
+
+        function startPolling() {
+            stopPolling();
+            if (authToken && currentUser && !document.hidden) {
+                initialLoad = true;
+                isNearBottomBeforeFetch = true;
+                fetchMessages().then(() => {
+                    scrollToBottom(true);
+                });
+                messagePollingInterval = setInterval(fetchMessages, 6000);
+                chatInputForm.style.display = 'flex';
+                setSendingState(false);
+            } else {
+                if (!authToken) handleAuthError("Not logged in.");
+                else if (!currentUser) handleAuthError("User info error.");
+                else if (document.hidden) console.log("Polling paused - tab hidden.");
+            }
+        }
+        async function initializeChat() {
+            if (!authToken) {
+                handleAuthError("Login required.");
+                return;
+            }
+            chatMessagesContainer.innerHTML = '<div class="loading-text">Connecting...</div>';
+            try {
+                const response = await fetch(`${api_url}/auth/verify`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 401 || response.status === 403) {
+                        handleAuthError("Session expired or invalid.");
+                    } else {
+                        throw new Error(errorData.error || `Auth check failed (${response.status})`);
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+                if (data && data.user && data.user.userId) {
+                    currentUser = data.user;
+                    chatUsername.textContent = currentUser.username || 'User';
+                    userPfpHeader.src = currentUser.pfp_url || DEFAULT_AVATAR_SVG;
+                    userPfpHeader.onerror = () => {
+                        userPfpHeader.src = DEFAULT_AVATAR_SVG;
+                    };
+                    userPfpHeader.classList.remove('hidden');
+                    startPolling();
+                } else {
+                    throw new Error("Invalid user data received.");
+                }
+            } catch (error) {
+                console.error("Init Error:", error);
+                handleAuthError(error.message || "Failed to connect. Please login again.");
+            }
+        }
+
+        function startReply(messageId, username, messageContent) {
+            currentReplyTarget = {
+                id: messageId,
+                username: username,
+                message: messageContent
+            };
+            replyPreviewUsername.textContent = username || 'User';
+            const previewText = messageContent ? (messageContent.length > 80 ? messageContent.substring(0, 80) + '...' : messageContent) : '[Original Message]';
+            replyPreviewContent.textContent = previewText;
+            replyPreviewArea.classList.remove('hidden');
+            hideReactionPicker();
+            chatInput.focus();
+            replyPreviewArea.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+
+        function cancelReply() {
+            currentReplyTarget = null;
+            replyPreviewArea.classList.add('hidden');
+        }
+
+        function showReactionPicker(messageId, triggerElement) {
+            if (!reactionPicker) {
+                console.error('reactionPicker element not found!');
+                return;
+            }
+            currentReactionTarget = {
+                messageId,
+                triggerElement
+            };
+            const rect = triggerElement.getBoundingClientRect();
+            const scrollY = window.scrollY || document.documentElement.scrollTop;
+            const scrollX = window.scrollX || document.documentElement.scrollLeft;
+            const isUserMsg = triggerElement.closest('.message-container.user');
+            reactionPicker.style.top = `${rect.top + scrollY - reactionPicker.offsetHeight - 8}px`;
+            if (isUserMsg) {
+                reactionPicker.style.left = `${rect.right + scrollX - reactionPicker.offsetWidth}px`;
+            } else {
+                reactionPicker.style.left = `${rect.left + scrollX}px`;
+            }
+            const pickerRect = reactionPicker.getBoundingClientRect();
+            if (pickerRect.left < 5) {
+                reactionPicker.style.left = `${scrollX + 5}px`;
+            }
+            if (pickerRect.right > window.innerWidth - 5) {
+                reactionPicker.style.left = `${scrollX + window.innerWidth - pickerRect.width - 5}px`;
+            }
+
+            reactionPicker.style.display = 'flex';
+            reactionPicker.classList.remove('hidden');
+            cancelReply();
+        }
+
+        function hideReactionPicker() {
+            if (reactionPicker) {
+                reactionPicker.classList.add('hidden');
+                reactionPicker.style.display = 'none';
+            }
+            currentReactionTarget = null;
+        }
+
+        async function sendReaction(emoji) {
+            if (!currentReactionTarget || !authToken) {
+                return;
+            }
+            const messageId = currentReactionTarget.messageId;
+            const payload = {
+                reaction_emoji: (emoji === "null" ? null : emoji)
+            };
+            try {
+                const response = await fetch(`${api_url}/global/chat/message/${messageId}/react`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({
+                        error: `React fail (${response.status})`
+                    }));
+                    if (response.status === 401) {
+                        handleAuthError("Session expired while reacting.");
+                    } else if (response.status === 404) {
+                        console.warn(`Message ${messageId} not found for reaction.`);
+                        const msgElement = chatMessagesContainer.querySelector(`.message-container[data-message-id="${messageId}"]`);
+                        if (msgElement) msgElement.remove();
+                    } else {
+                        throw new Error(errorData.error || `React failed (${response.status})`);
+                    }
+                    return;
+                }
+                await fetchMessages();
+            } catch (error) {
+                console.error(`Send reaction error for msg ${messageId}:`, error);
+                alert(`Reaction Error: ${error.message}`);
+            }
+        }
+        chatInputForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!sendButton.disabled) sendTextMessage(chatInput.value);
+        });
+        imageUploadButton.addEventListener('click', () => {
+            if (!imageUploadButton.disabled) chatImageInput.click();
+            hideReactionPicker();
+        });
+        chatImageInput.addEventListener('change', (e) => {
+            const file = e.target.files ? e.target.files[0] : null;
+            if (file && !imageUploadButton.disabled) sendImageMessage(file);
+        });
+        chatMessagesContainer.addEventListener('click', (e) => {
+            const reactionTrigger = e.target.closest('.reaction-trigger-button');
+            if (reactionTrigger) {
+                const messageId = reactionTrigger.dataset.messageId;
+                if (messageId) {
+                    showReactionPicker(messageId, reactionTrigger);
+                }
+                return;
+            }
+            const replyButton = e.target.closest('.reply-button');
+            if (replyButton) {
+                const messageId = replyButton.dataset.replyId;
+                const messageContainer = replyButton.closest('.message-container');
+                if (messageId && messageContainer) {
+                    const username = messageContainer.dataset.username;
+                    const messageContent = messageContainer.dataset.message;
+                    startReply(messageId, username, messageContent);
+                }
+                return;
+            }
+            const unsendButton = e.target.closest('.unsend-button');
+            if (unsendButton) {
+                const messageId = unsendButton.dataset.unsendId;
+                if (messageId) {
+                    showUnsendModal(messageId);
+                }
+                return;
+            }
+            if (!e.target.closest('#reaction-picker')) {
+                hideReactionPicker();
+            }
+        });
+        cancelReplyButton.addEventListener('click', cancelReply);
+        reactionPicker.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const emojiButton = e.target.closest('.reaction-emoji-button');
+            if (emojiButton) {
+                const emojiData = emojiButton.dataset.emoji;
+                if (emojiData === "null") {
+                    sendReaction(null);
+                } else if (emojiData) {
+                    sendReaction(emojiData);
+                }
+                hideReactionPicker();
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (reactionPicker && !reactionPicker.classList.contains('hidden') && reactionPicker.style.display !== 'none' && !reactionPicker.contains(e.target) && !e.target.closest('.reaction-trigger-button')) {
+                hideReactionPicker();
+            }
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopPolling();
+                hideReactionPicker();
+            } else {
+                if (authToken) {
+                    if (currentUser) startPolling();
+                    else initializeChat();
+                } else handleAuthError("Login to continue.");
+            }
+        });
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                imageModal.style.display = 'none';
+                hideReactionPicker();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (imageModal.style.display === 'flex') imageModal.style.display = 'none';
+                hideReactionPicker();
+                cancelReply();
+            }
+        });
+        window.onload = () => {
+            initializeChat();
+            lucide.createIcons();
+        };
+        window.addEventListener('beforeunload', stopPolling);
+    </script>
+</body>
+
+</html>

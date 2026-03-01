@@ -1,0 +1,3264 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Share Boost</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <link rel="icon" href="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" type="image/png">
+    <meta name="theme-color" content="#1E1A34">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                        mono: ['SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#8B5CF6',
+                        'primary-darker': '#7C3AED',
+                        'text-main': '#E5E7EB',
+                        'text-muted': '#9CA3AF',
+                        'bg-container': '#111827',
+                        'bg-card': 'rgba(55, 65, 81, 0.7)',
+                        'bg-card-alt': 'rgba(55, 65, 81, 0.4)',
+                        'bg-card-hover': 'rgba(55, 65, 81, 0.8)',
+                        'bg-card-hover-alt': 'rgba(55, 65, 81, 0.5)',
+                        'bg-card-active': 'rgba(139, 92, 246, 0.1)',
+                        'bg-card-active-alt': 'rgba(139, 92, 246, 0.2)',
+                        'border-color': 'rgba(139, 92, 246, 0.15)',
+                        'input-bg': 'rgba(55, 65, 81, 0.5)',
+                        'input-border': 'rgba(139, 92, 246, 0.3)',
+                        'nav-bg': 'rgba(31, 41, 55, 0.95)',
+                        'nav-border': 'rgba(139, 92, 246, 0.2)',
+                        'modal-bg': '#2a2744',
+                        'success-bg': '#166534',
+                        'success-text': '#dcfce7',
+                        'error-bg': '#991b1b',
+                        'error-text': '#fee2e2',
+                        'info-bg': 'rgba(139, 92, 246, 0.1)',
+                        'info-text': '#d8b4fe',
+                        'info-border': 'rgba(139, 92, 246, 0.3)',
+                        'warning-bg': 'rgba(245, 158, 11, 0.1)',
+                        'warning-text': '#fde68a',
+                        'warning-border': 'rgba(217, 119, 6, 0.3)',
+                        'status-active': '#22c55e',
+                        'status-offline': '#ef4444',
+                        'status-timeout': '#f59e0b',
+                        'plan-card': 'rgba(55, 65, 81, 0.9)'
+                    },
+                    boxShadow: {
+                        'primary-glow': '0 0 15px rgba(139, 92, 246, 0.3)',
+                        'card': '0 5px 20px rgba(0, 0, 0, 0.2)',
+                        'header': '0 2px 10px rgba(17, 24, 39, 0.3)',
+                        'nav': '0 -2px 10px rgba(17, 24, 39, 0.3)',
+                        'red-glow-sm': '0 0 8px rgba(239, 68, 68, 0.3)',
+                        'red-glow': '0 0 15px rgba(239, 68, 68, 0.25)'
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background-color: theme('colors.bg-container');
+            color: theme('colors.text-main');
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.primary-darker');
+        }
+
+        .content-section,
+        .auth-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .content-section.active,
+        .auth-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.75rem;
+            color: inherit;
+            position: relative;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 1050;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 300px;
+            max-width: 90%;
+            border: 1px solid theme('colors.border-color');
+            background-color: theme('colors.modal-bg');
+            color: theme('colors.text-main');
+            animation: modalScaleUp 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalScaleUp {
+            from {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #responseModal .modal-content {
+            padding: 1.75rem;
+        }
+
+        .modal-content.success {
+            border-left: 5px solid theme('colors.status-active');
+            background-color: theme('colors.success-bg');
+            color: theme('colors.success-text');
+        }
+
+        .modal-content.error {
+            border-left: 5px solid theme('colors.status-offline');
+            background-color: theme('colors.error-bg');
+            color: theme('colors.error-text');
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid theme('colors.primary') !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        button,
+        .nav-item {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 9999px;
+            background-color: rgba(255, 255, 255, 0.05);
+            line-height: 1;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #side-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #side-menu.open {
+            transform: translateX(0);
+        }
+
+        #menu-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #main-content-area {
+            display: none;
+        }
+
+        #main-content-area.active {
+            display: block;
+        }
+
+        #auth-container {
+            display: block;
+        }
+
+        #auth-container.hidden {
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding-left: 0.6rem;
+            padding-right: 0.6rem;
+            padding-top: 0.125rem;
+            padding-bottom: 0.125rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            font-weight: 500;
+            border-width: 1px;
+            vertical-align: middle;
+        }
+
+        .status-badge-premium {
+            background-color: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.5);
+            color: #a78bfa;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .status-badge-free {
+            background-color: rgba(107, 114, 128, 0.1);
+            border-color: rgba(107, 114, 128, 0.3);
+            color: #9ca3af;
+        }
+
+        #amount-limit-text {
+            font-size: 0.75rem;
+            line-height: 1rem;
+            color: theme('colors.text-muted');
+            margin-top: 0.25rem;
+            text-align: left;
+            display: none;
+        }
+
+        #terminal-section-container {
+            background: rgba(20, 24, 36, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 0.75rem;
+            padding: 0;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            box-shadow: 0 8px 32px rgba(17, 24, 39, 0.37);
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            background: rgba(30, 35, 50, 0.7);
+            padding: 0.6rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .terminal-header-title {
+            font-family: theme('fontFamily.poppins');
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: theme('colors.text-main');
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .terminal-header-title i {
+            color: theme('colors.primary');
+        }
+
+        .terminal-window-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-window-controls span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .terminal-window-controls .control-red {
+            background-color: #ff5f57;
+        }
+
+        .terminal-window-controls .control-yellow {
+            background-color: #ffbd2e;
+        }
+
+        .terminal-window-controls .control-green {
+            background-color: #28c940;
+        }
+
+        #terminal-output {
+            background-color: rgba(10, 12, 20, 0.95);
+            color: #D1D5DB;
+            padding: 1rem 1.25rem;
+            font-family: theme('fontFamily.mono');
+            font-size: 0.875rem;
+            line-height: 1.8;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            height: 30em;
+            border: none;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #terminal-output::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        #terminal-output::-webkit-scrollbar-track {
+            background: rgba(40, 48, 64, 0.3);
+            border-radius: 10px;
+        }
+
+        #terminal-output::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        #terminal-output::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.7);
+        }
+
+        #terminal-output .prompt {
+            color: #67e8f9;
+            font-weight: 700;
+            margin-right: 0.6em;
+        }
+
+        #terminal-output .info {
+            color: #9CA3AF;
+            display: block;
+            margin-bottom: 0.4em;
+            font-style: italic;
+        }
+
+        #terminal-output .share-log {
+            display: block;
+            margin-bottom: 0.15em;
+            color: #E5E7EB;
+        }
+
+        #terminal-output .processing {
+            color: #FACC15;
+            display: flex;
+            align-items: center;
+            margin-top: 0.3em;
+            margin-bottom: 0.3em;
+        }
+
+        #terminal-output .processing .spinner {
+            display: inline-block;
+            width: 0.8em;
+            height: 0.8em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5em;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #terminal-output .success {
+            color: #34D399;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            margin-top: 0.5em;
+            margin-bottom: 0.3em;
+        }
+
+        #terminal-output .error {
+            color: #F87171;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            margin-top: 0.3em;
+            margin-bottom: 0.3em;
+        }
+
+        .plan-request-button,
+        .plan-button {
+            background-color: theme('colors.primary');
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: theme('borderRadius.lg');
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: theme('boxShadow.md');
+            border: 1px solid transparent;
+            transform: perspective(1px) translateZ(0);
+        }
+
+        .plan-request-button:hover:not(:disabled),
+        .plan-button:hover:not(:disabled) {
+            background-color: theme('colors.primary-darker');
+            box-shadow: theme('boxShadow.lg'), 0 0 10px theme('colors.primary / 30%');
+            transform: translateY(-2px) perspective(1px) translateZ(0);
+        }
+
+        .plan-request-button:active:not(:disabled),
+        .plan-button:active:not(:disabled) {
+            transform: scale(0.97) translateY(-1px) perspective(1px) translateZ(0);
+            box-shadow: theme('boxShadow.inner');
+        }
+
+        .plan-request-button:disabled,
+        .plan-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .nav-item {
+            transition: color 0.2s ease-in-out;
+        }
+
+        .nav-indicator {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            background-color: #000;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+        }
+
+        #user-pfp-header,
+        #user-pfp-side-menu {
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            object-fit: cover;
+            background-color: rgba(55, 65, 81, 0.5);
+        }
+
+        #google-login-btn > div,
+        #google-register-btn > div {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+        }
+
+        #google-login-btn iframe,
+        #google-register-btn iframe {
+            max-width: 100% !important;
+            min-height: 40px !important;
+        }
+
+        #profile-settings-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: theme('colors.text-muted');
+        }
+
+        #profile-settings-section input[type="text"],
+        #profile-settings-section input[type="email"],
+        #profile-settings-section input[type="url"],
+        #profile-settings-section input[type="password"],
+        #profile-settings-section input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid theme('colors.input-border');
+            background-color: theme('colors.input-bg');
+            color: theme('colors.text-main');
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        #profile-settings-section input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: rgba(55, 65, 81, 0.3);
+        }
+
+        #profile-settings-section input[type="file"] {
+            padding: 0.5rem;
+            color: theme('colors.text-muted');
+        }
+
+        #profile-settings-section input[type="file"]::file-selector-button {
+            font-weight: bold;
+            color: theme('colors.primary');
+            background-color: theme('colors.input-bg');
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.3rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #profile-settings-section input[type="file"]::file-selector-button:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        #profile-settings-section button {
+            width: 100%;
+            background-color: theme('colors.primary');
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        #profile-settings-section button:hover:not(:disabled) {
+            background-color: theme('colors.primary-darker');
+        }
+
+        #profile-settings-section button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .settings-divider {
+            border-top: 1px solid theme('colors.border-color');
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pfp-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pfp-preview {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 9999px;
+            object-fit: cover;
+            background-color: theme('colors.input-bg');
+            border: 2px solid theme('colors.input-border');
+        }
+    </style>
+</head>
+
+<body class="bg-bg-container text-text-main font-poppins select-none">
+    <div class="flex-1 bg-bg-container flex flex-col relative overflow-x-hidden">
+        <header class="p-4 border-b bg-nav-bg border-nav-border sticky top-0 z-40 backdrop-blur-md shadow-header w-full">
+            <div class="max-w-5xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <img id="user-pfp-header" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23374151'/%3E%3C/svg%3E" alt="PFP" class="w-10 h-10 rounded-full hidden">
+                    <h1 class="text-xl font-semibold text-inherit">Share Boost</h1>
+                    <span class="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">v4.1</span>
+                </div>
+                <div class="flex items-center space-x-3" id="auth-header-buttons">
+                    <a href="#" id="header-login-btn" class="text-sm font-medium text-text-muted hover:text-primary">Login</a>
+                    <a href="#" id="header-signup-btn" class="text-sm font-medium text-primary hover:underline">Sign Up</a>
+                    <button id="logout-button" title="Logout" class="text-text-muted hover:text-primary p-1.5 bg-primary/10 rounded-lg hidden transform transition-all hover:scale-110 active:scale-95">
+                        <i data-lucide="log-out" class="w-5 h-5 text-primary"></i>
+                    </button>
+                    <button id="menu-button" title="Menu" class="text-text-muted hover:text-primary p-1.5 rounded-full hover:bg-white/10 transform transition-all hover:scale-110 active:scale-95">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <main class="flex-grow overflow-y-auto p-4 sm:p-5 w-full pb-20 md:pb-4">
+            <div class="max-w-xl mx-auto">
+                <div id="auth-container">
+                    <section id="get-started-section" class="auth-section active space-y-5 mt-5">
+                        <div class="text-center mb-8">
+                            <div class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-primary-glow">
+                                <i data-lucide="rocket" class="w-12 h-12 text-white"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-text-main mb-3">Welcome to Share Boost</h1>
+                            <p class="text-lg text-text-muted max-w-md mx-auto">Automate your Facebook shares and boost your posts with ease</p>
+                        </div>
+
+                        <div id="landing-announcements-container" class="space-y-4 mb-6"></div>
+
+                        <div class="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-400/30 rounded-2xl p-5 mb-6">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-amber-400/20 p-2 rounded-full flex-shrink-0">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-amber-300 mb-2">⚠️ Important Reminders</h3>
+                                    <ul class="text-sm text-amber-100 space-y-1.5">
+                                        <li>• Maximum 3 accounts per device to prevent abuse</li>
+                                        <li>• Free users: 500 shares per session limit</li>
+                                        <li>• Premium plans available starting from ₱15</li>
+                                        <li>• Use valid Facebook cookies for best results</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-bg-card rounded-xl p-5 border border-border-color">
+                                <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-3">
+                                    <i data-lucide="zap" class="w-6 h-6 text-primary"></i>
+                                </div>
+                                <h3 class="font-semibold text-text-main mb-2">Fast & Automated</h3>
+                                <p class="text-sm text-text-muted">Share posts automatically with customizable delays and amounts</p>
+                            </div>
+                            <div class="bg-bg-card rounded-xl p-5 border border-border-color">
+                                <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-3">
+                                    <i data-lucide="shield-check" class="w-6 h-6 text-primary"></i>
+                                </div>
+                                <h3 class="font-semibold text-text-main mb-2">Secure & Reliable</h3>
+                                <p class="text-sm text-text-muted">Your data is safe with our secure authentication system</p>
+                            </div>
+                        </div>
+
+                        <button id="get-started-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-lg font-bold text-lg hover:shadow-primary-glow duration-300 flex items-center justify-center gap-3 shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                            <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                            Get Started Now
+                        </button>
+
+                        <p class="text-center text-sm text-text-muted mt-4">
+                            By continuing, you agree to our terms of service and privacy policy
+                        </p>
+                    </section>
+
+                    <section id="login-section" class="auth-section space-y-5 mt-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <button id="back-to-landing" class="text-text-muted hover:text-primary flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                <span>Back</span>
+                            </button>
+                            <h2 class="text-2xl font-bold text-text-main">Login</h2>
+                            <div class="w-16"></div>
+                        </div>
+                        <form id="login-form" class="space-y-4" method="POST">
+                            <div><label for="login-username" class="text-sm font-medium text-text-muted mb-1.5 block">Email or Username</label><input type="text" id="login-username" name="username" autocomplete="username" placeholder="Enter your email or username" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="login-password" class="text-sm font-medium text-text-muted mb-1.5 block">Password</label><input type="password" id="login-password" name="password" autocomplete="current-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div class="mb-4 flex justify-center">
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAAB5kD__eoeb4LWCA" data-callback="onLoginTurnstileSuccess" data-theme="dark"></div>
+                            </div>
+                            <button type="submit" id="login-submit-btn" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1" disabled>Login</button>
+
+                            <div class="relative my-6">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-border-color"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-bg-container text-text-muted">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <div id="google-login-btn" class="w-full flex justify-center items-center min-h-[44px]"></div>
+
+                            <p class="text-center text-sm text-text-muted">
+                                <a href="#" id="forgot-password" class="text-primary hover:underline">Forgot Password?</a>
+                            </p>
+                        </form>
+                    </section>
+                    <section id="register-section" class="auth-section space-y-5 mt-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <button id="back-to-landing-from-register" class="text-text-muted hover:text-primary flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                <span>Back</span>
+                            </button>
+                            <h2 class="text-2xl font-bold text-text-main">Register</h2>
+                            <div class="w-16"></div>
+                        </div>
+                        <form id="register-form" class="space-y-4" method="POST">
+                            <div><label for="register-fullname" class="text-sm font-medium text-text-muted mb-1.5 block">Full Name</label><input type="text" id="register-fullname" name="fullname" autocomplete="name" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="register-username" class="text-sm font-medium text-text-muted mb-1.5 block">Username</label><input type="text" id="register-username" name="username" autocomplete="username" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="register-email" class="text-sm font-medium text-text-muted mb-1.5 block">Email</label><input type="email" id="register-email" name="email" autocomplete="email" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="register-password" class="text-sm font-medium text-text-muted mb-1.5 block">Password (min 6)</label><input type="password" id="register-password" name="password" autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="register-confirmPassword" class="text-sm font-medium text-text-muted mb-1.5 block">Confirm Password</label><input type="password" id="register-confirmPassword" name="confirmPassword" autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required></div>
+                            <div><label for="register-pfp_file" class="text-sm font-medium text-text-muted mb-1.5 block">Profile Picture (Optional)</label><input type="file" id="register-pfp_file" name="pfp_file" accept="image/*" class="w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 file:cursor-pointer"></div>
+                            <div class="mb-4 flex justify-center">
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAAB5kD__eoeb4LWCA" data-callback="onRegisterTurnstileSuccess" data-theme="dark"></div>
+                            </div>
+                            <button type="submit" id="register-submit-btn" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1" disabled>Register</button>
+
+                            <div class="relative my-6">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-border-color"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-bg-container text-text-muted">Or continue with</span>
+                                </div>
+                            </div>
+
+                            <div id="google-register-btn" class="w-full flex justify-center items-center min-h-[44px]"></div>
+                        </form>
+                    </section>
+                    <section id="forgot-password-section" class="auth-section space-y-5 mt-5">
+                        <h2 class="section-title">Forgot Password</h2>
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="key" class="w-8 h-8 text-primary"></i>
+                            </div>
+                            <p class="text-text-muted text-sm">Enter your email address and we'll send you a reset code</p>
+                        </div>
+                        <form id="forgot-password-form" class="space-y-4" method="POST">
+                            <div>
+                                <label for="forgot-email" class="text-sm font-medium text-text-muted mb-1.5 block">Email Address</label>
+                                <input type="email" id="forgot-email" name="email" autocomplete="email" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" placeholder="your@gmail.com" required>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                                Send Reset Code
+                            </button>
+                            <button type="button" id="back-to-login-btn" class="text-text-muted hover:text-primary text-sm underline w-full text-center">
+                                ← Back to Login
+                            </button>
+                        </form>
+                    </section>
+                    <section id="reset-password-section" class="auth-section space-y-5 mt-5">
+                        <h2 class="section-title">Reset Password</h2>
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="shield-check" class="w-8 h-8 text-primary"></i>
+                            </div>
+                            <p class="text-text-muted text-sm">Enter the code sent to your email and your new password</p>
+                            <p id="reset-email-display" class="text-primary font-medium"></p>
+                        </div>
+                        <form id="reset-password-form" class="space-y-4" method="POST">
+                            <div>
+                                <label for="reset-otp-code" class="text-sm font-medium text-text-muted mb-1.5 block">6-Digit Reset Code</label>
+                                <input type="text" id="reset-otp-code" name="otp" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm text-center font-mono text-lg tracking-widest" placeholder="123456" required>
+                            </div>
+                            <div>
+                                <label for="reset-new-password" class="text-sm font-medium text-text-muted mb-1.5 block">New Password (min 6)</label>
+                                <input type="password" id="reset-new-password" name="newPassword" autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required>
+                            </div>
+                            <div>
+                                <label for="reset-confirm-password" class="text-sm font-medium text-text-muted mb-1.5 block">Confirm New Password</label>
+                                <input type="password" id="reset-confirm-password" name="confirmNewPassword" autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" required>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                Reset Password
+                            </button>
+                            <button type="button" id="back-to-forgot-btn" class="text-text-muted hover:text-primary text-sm underline w-full text-center">
+                                ← Back to Forgot Password
+                            </button>
+                        </form>
+                    </section>
+                    <section id="otp-verification-section" class="auth-section space-y-5 mt-5 hidden">
+                        <h2 class="section-title">Email Verification</h2>
+                        <div class="text-center mb-4">
+                            <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="mail" class="w-8 h-8 text-primary"></i>
+                            </div>
+                            <p class="text-text-muted text-sm">We've sent a verification code to</p>
+                            <p id="otp-email-display" class="text-primary font-medium"></p>
+                        </div>
+                        <form id="otp-verification-form" class="space-y-4" method="POST">
+                            <div>
+                                <label for="otp-code" class="text-sm font-medium text-text-muted mb-1.5 block">6-Digit Verification Code</label>
+                                <input type="text" id="otp-code" name="otp" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm text-center font-mono text-lg tracking-widest" placeholder="123456" required>
+                                <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <p class="text-sm text-yellow-800">
+                                        <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
+                                        <strong>Can't find the code?</strong> Please check your spam/junk folder. The verification email might have been filtered there.
+                                    </p>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                                Verify Account
+                            </button>
+                            <div class="flex flex-col gap-2">
+                                <button type="button" id="resend-otp-btn" class="w-full bg-gray-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-gray-700 duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                                    Resend Code
+                                </button>
+                                <button type="button" id="back-to-register-btn" class="text-text-muted hover:text-primary text-sm underline w-full text-center">
+                                    ← Back to Registration
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+                <div id="main-content-area" class="hidden">
+                    <div class="content-sections">
+                        <section id="home-section" class="content-section active">
+                            <div id="user-info-header" class="bg-gradient-to-r from-bg-card via-bg-card to-primary/10 p-3.5 rounded-lg border border-border-color shadow-md flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-6 hidden">
+                                <div class="flex items-center gap-2 min-w-0"><img id="user-pfp-header-main" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234b5563'/%3E%3C/svg%3E" alt="PFP" class="w-6 h-6 rounded-full border-2 border-primary/50 flex-shrink-0 object-cover"><span id="user-status-username-header" class="font-semibold text-sm text-text-main truncate" title="Username"></span></div>
+                                <div class="flex items-center gap-3 flex-shrink-0"><span id="user-status-plan-header" class="status-badge"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i><span>Plan</span></span><span id="user-status-expiry-header" class="flex items-center gap-1 px-2 py-1 border border-text-muted/30 rounded-md bg-input-bg text-xs font-mono text-text-muted" title="Expiration"><i data-lucide="calendar-clock" class="w-3.5 h-3.5"></i><span></span></span></div>
+                            </div>
+                            <form id="share-boost-form" class="space-y-5" method="POST">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label for="cookie" class="text-sm font-medium text-text-main">Cookie / AppState</label>
+                                        <div class="flex gap-2">
+                                            <button type="button" id="load-cookie-btn" class="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-1 rounded-lg transition-colors">
+                                                <i data-lucide="download" class="w-3 h-3 inline mr-1"></i>Load Saved
+                                            </button>
+                                            <button type="button" id="save-cookie-btn" class="text-xs bg-green-500/20 hover:bg-green-500/30 text-green-400 px-3 py-1 rounded-lg transition-colors">
+                                                <i data-lucide="save" class="w-3 h-3 inline mr-1"></i>Save
+                                            </button>
+                                            <button type="button" id="delete-cookie-btn" class="text-xs bg-red-500/20 hover:bg-red-500/30 text-red-400 px-3 py-1 rounded-lg transition-colors">
+                                                <i data-lucide="trash-2" class="w-3 h-3 inline mr-1"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <textarea id="cookie" rows="4" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm resize-none" placeholder='Paste cookie string or JSON array here...' required></textarea>
+                                </div>
+                                <div>
+                                    <label for="urls" class="text-sm font-medium text-text-muted mb-1.5 block flex items-center gap-1.5"><i data-lucide="link" class="w-4 h-4 text-primary"></i> Post Link:</label>
+                                    <input type="url" id="urls" name="url" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" placeholder="https://www.facebook.com/..." required>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <div class="w-1/2">
+                                        <label for="amounts" id="amount-label" class="text-sm font-medium text-text-muted mb-1.5 block flex items-center gap-1.5"><i data-lucide="hash" class="w-4 h-4 text-primary"></i> Share Limit:</label>
+                                        <input type="number" id="amounts" name="amount" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" placeholder="e.g., 100" min="1" required>
+                                        <p id="amount-limit-text">Max 500 shares per session for free plan.</p>
+                                    </div>
+                                    <div class="w-1/2">
+                                        <label for="intervals" class="text-sm font-medium text-text-muted mb-1.5 block flex items-center gap-1.5"><i data-lucide="timer" class="w-4 h-4 text-primary"></i> Delay (sec):</label>
+                                        <input type="number" id="intervals" name="interval" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm" placeholder="e.g., 10" min="1" required>
+                                    </div>
+                                </div>
+                                <button type="submit" id="submit-button" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                                    <span class="button-icon"><i data-lucide="rocket" class="w-5 h-5"></i></span>
+                                    <span class="button-text">Start Boosting</span>
+                                </button>
+                                <button type="button" id="stop-button" class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold text-base hover:bg-red-700 duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg active:scale-[0.98] mt-3 hidden transform transition-all hover:-translate-y-1">
+                                    <span class="button-icon"><i data-lucide="stop-circle" class="w-5 h-5"></i></span>
+                                    <span class="button-text">Stop Session</span>
+                                </button>
+                            </form>
+                        </section>
+                        <section id="premium-plans-section" class="content-section">
+                            <h2 class="section-title text-center mb-4">
+                                <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                                    💎 Premium Plans
+                                </span>
+                            </h2>
+                            <p class="text-center text-text-muted mb-6 text-sm">Unlock unlimited power with our premium plans</p>
+
+                            <!-- Lifetime Protection Banner -->
+                            <div class="mb-6 p-4 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-400/30 rounded-2xl">
+                                <div class="flex items-start gap-3 mb-2">
+                                    <div class="bg-amber-400/20 p-2 rounded-full">
+                                        <i data-lucide="shield-check" class="w-5 h-5 text-amber-400"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-base font-bold text-amber-300 mb-1">🛡️ Lifetime Priority Protection</h3>
+                                        <p class="text-xs text-amber-100 leading-relaxed">
+                                            <strong>Permanent plans</strong> come with <span class="text-amber-300 font-semibold">Lifetime Priority Status</span> -
+                                            your premium access can NEVER be revoked!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+
+                                <div class="bg-gradient-to-br from-slate-800/95 to-slate-700/90 rounded-2xl border border-primary/30 shadow-xl backdrop-blur-sm overflow-hidden">
+                                    <div class="p-5">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                                                    <i data-lucide="clock" class="w-5 h-5 text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-primary">1 Week Plan</h3>
+                                                    <p class="text-xs text-text-muted uppercase tracking-wider">Perfect to Start</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-2xl font-black text-text-main">₱15</div>
+                                                <div class="text-xs text-text-muted">One time</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 mb-4">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main font-medium">1,000 shares per session</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="infinity" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Unlimited sessions</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="zap" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Session persistence</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" data-plan="1 Week" class="plan-button w-full bg-primary hover:bg-primary-darker text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-primary/30 hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            <i data-lucide="send" class="w-4 h-4"></i>
+                                            <span>Get Started</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Popular Plan -->
+                                <div class="relative bg-gradient-to-br from-blue-600/20 to-blue-500/30 rounded-2xl border-2 border-blue-400/50 shadow-xl backdrop-blur-sm overflow-hidden">
+                                    <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-xl text-xs font-bold">
+                                        🔥 POPULAR
+                                    </div>
+                                    <div class="p-5">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-blue-500/30 rounded-xl flex items-center justify-center">
+                                                    <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-blue-400">2 Weeks Plan</h3>
+                                                    <p class="text-xs text-text-muted uppercase tracking-wider">Most Popular Choice</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-2xl font-black text-text-main">₱20</div>
+                                                <div class="text-xs text-text-muted">One time</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 mb-4">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main font-medium">2,000 shares per session</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="infinity" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Unlimited sessions</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="zap" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Session persistence</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" data-plan="2 Weeks" class="plan-button w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            <i data-lucide="send" class="w-4 h-4"></i>
+                                            <span>Choose Popular</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Great Value Plan -->
+                                <div class="bg-gradient-to-br from-green-600/20 to-emerald-500/30 rounded-2xl border border-green-400/50 shadow-xl backdrop-blur-sm overflow-hidden">
+                                    <div class="p-5">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-green-500/30 rounded-xl flex items-center justify-center">
+                                                    <i data-lucide="trending-up" class="w-5 h-5 text-green-400"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-green-400">1 Year Plan</h3>
+                                                    <p class="text-xs text-green-300 uppercase tracking-wider font-medium">Great Value</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-2xl font-black text-text-main">₱35</div>
+                                                <div class="text-xs text-text-muted">One time</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 mb-4">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="check-circle" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main font-medium">4,000 shares per session</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="infinity" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Unlimited sessions</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i data-lucide="headphones" class="w-4 h-4 text-green-400 flex-shrink-0"></i>
+                                                <span class="text-text-main">Priority support</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" data-plan="1 Year" class="plan-button w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/30 hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            <i data-lucide="send" class="w-4 h-4"></i>
+                                            <span>Best Value</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- VIP Permanent Plan -->
+                                <div class="relative bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 rounded-2xl shadow-2xl border-2 border-amber-300 overflow-hidden">
+                                    <!-- Crown Badge -->
+                                    <div class="absolute -top-2 -right-2 w-12 h-12 bg-red-600 rounded-full flex items-center justify-center transform rotate-12 border-2 border-red-400 shadow-lg">
+                                        <i data-lucide="crown" class="w-6 h-6 text-white"></i>
+                                    </div>
+
+                                    <!-- VIP Badge -->
+                                    <div class="absolute top-0 left-0 bg-red-600 text-white px-4 py-1 rounded-br-xl text-xs font-bold uppercase tracking-wider">
+                                        👑 VIP LIFETIME
+                                    </div>
+
+                                    <div class="p-5 text-black">
+                                        <div class="flex items-center justify-between mb-4 mt-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-12 h-12 bg-white/30 rounded-xl flex items-center justify-center shadow-inner">
+                                                    <i data-lucide="infinity" class="w-6 h-6 text-amber-900"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-xl font-black text-amber-900">Permanent VIP</h3>
+                                                    <p class="text-xs text-red-700 uppercase tracking-wider font-bold">NEVER EXPIRES</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-3xl font-black text-amber-900">₱50</div>
+                                                <div class="text-xs text-amber-800 font-bold">One time only</div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="bg-black/10 rounded-xl p-3 mb-4">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <i data-lucide="shield-check" class="w-4 h-4 text-amber-900"></i>
+                                                <span class="text-xs font-bold text-amber-900 uppercase tracking-wider">🛡️ LIFETIME PROTECTION</span>
+                                            </div>
+                                            <p class="text-xs text-amber-800 font-medium">Your premium access can NEVER be revoked!</p>
+                                        </div>
+
+                                        <div class="space-y-2 mb-4">
+                                            <div class="flex items-center gap-2 text-sm font-medium">
+                                                <i data-lucide="infinity" class="w-4 h-4 text-amber-800 flex-shrink-0"></i>
+                                                <span class="text-amber-900"><strong>UNLIMITED</strong> everything</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm font-medium">
+                                                <i data-lucide="shield-check" class="w-4 h-4 text-amber-800 flex-shrink-0"></i>
+                                                <span class="text-amber-900"><strong>LIFETIME</strong> access guarantee</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm font-medium">
+                                                <i data-lucide="star" class="w-4 h-4 text-amber-800 flex-shrink-0"></i>
+                                                <span class="text-amber-900">VIP priority support</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm font-medium">
+                                                <i data-lucide="gift" class="w-4 h-4 text-amber-800 flex-shrink-0"></i>
+                                                <span class="text-amber-900">Future feature access</span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" data-plan="Permanent" class="plan-button w-full bg-gradient-to-r from-amber-800 to-amber-900 hover:from-amber-900 hover:to-black border-2 border-amber-300 text-amber-100 font-black py-4 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-2xl hover:shadow-amber-900/50 hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            <i data-lucide="crown" class="w-5 h-5"></i>
+                                            <span>GET LIFETIME VIP</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="terminal-section-container" class="content-section">
+                            <div class="terminal-header">
+                                <div class="terminal-header-title">
+                                    <i data-lucide="terminal-square" class="w-5 h-5"></i>
+                                    <span>Session Log</span>
+                                </div>
+                                <div class="terminal-window-controls">
+                                    <span class="control-red"></span>
+                                    <span class="control-yellow"></span>
+                                    <span class="control-green"></span>
+                                </div>
+                            </div>
+                            <div id="terminal-output"><span class="info">Connecting to terminal...</span></div>
+                        </section>
+                        <section id="notifications-section" class="content-section">
+                            <h2 class="section-title flex items-center justify-center gap-2">
+                                <i data-lucide="bell" class="w-6 h-6 text-primary"></i>
+                                Notifications & Tips
+                            </h2>
+                            <div id="announcements-container" class="space-y-4 mb-6"></div>
+                            <div id="notifications-list" class="space-y-4">
+
+                                <div class="relative overflow-hidden rounded-xl border-2 border-gradient-to-r from-amber-500 to-orange-500 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 p-5 shadow-lg backdrop-blur-sm">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-orange-500/5"></div>
+                                    <div class="relative flex items-start gap-4">
+                                        <div class="flex-shrink-0">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg">
+                                                <i data-lucide="shield-alert" class="h-5 w-5 text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <h4 class="font-bold text-base mb-2 bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">⚠️ Registration Limits</h4>
+                                            <p class="text-sm text-amber-100 leading-relaxed mb-3">
+                                                To prevent abuse, there's a limit of <span class="font-bold text-amber-300">3 accounts per device</span>.
+                                                The 4th registration attempt will be automatically suspended.
+                                            </p>
+                                            <div class="bg-white/10 rounded-lg p-3 border border-white/20">
+                                                <p class="text-xs text-amber-200">
+                                                    <strong>Note:</strong> This limit helps maintain fair usage and prevents spam accounts.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 shadow-inner">
+                                        <i data-lucide="hash" class="w-5 h-5 text-amber-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-base mb-1 text-amber-300 flex items-center gap-2">
+                                            Free Plan Limits
+                                            <span class="px-2 py-0.5 bg-amber-500/20 rounded-full text-xs">500 MAX</span>
+                                        </h4>
+                                        <p class="text-sm text-amber-100 leading-relaxed mb-2">
+                                            Free accounts can boost up to <span class="font-bold text-amber-200">500 shares per session</span>.
+                                            Perfect for testing and small campaigns.
+                                        </p>
+                                        <div class="bg-amber-500/10 rounded-lg p-2 border border-amber-500/20">
+                                            <p class="text-xs text-amber-200">
+                                                💎 Want unlimited shares? Check out our <a href="#" data-section-link="contact" class="font-semibold underline hover:text-amber-100">Premium Plans</a> starting from ₱15!
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20 shadow-inner">
+                                        <i data-lucide="crown" class="w-5 h-5 text-purple-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-base mb-1 text-purple-300 flex items-center gap-2">
+                                            Premium Plans Available
+                                            <span class="px-2 py-0.5 bg-purple-500/20 rounded-full text-xs">UNLIMITED</span>
+                                        </h4>
+                                        <p class="text-sm text-purple-100 leading-relaxed mb-2">
+                                            Upgrade to premium for unlimited shares, higher limits, and priority support. Plans start from just ₱15 for 1 week.
+                                        </p>
+                                        <div class="bg-purple-500/10 rounded-lg p-2 border border-purple-500/20">
+                                            <a href="#" data-section-link="premium-plans" class="text-xs text-purple-200 font-semibold hover:text-purple-100 underline flex items-center gap-1">
+                                                <i data-lucide="gem" class="w-3 h-3"></i>
+                                                View All Premium Plans →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/20 shadow-inner">
+                                        <i data-lucide="play-circle" class="w-5 h-5 text-indigo-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-base mb-1 text-indigo-300 flex items-center gap-2">
+                                            Step-by-Step Tutorial
+                                            <span class="px-2 py-0.5 bg-indigo-500/20 rounded-full text-xs">VIDEO GUIDE</span>
+                                        </h4>
+                                        <p class="text-sm text-indigo-100 leading-relaxed mb-2">
+                                            Learn how to get your appstate/cookie and start boosting shares effectively with our video tutorial.
+                                        </p>
+                                        <div class="bg-indigo-500/10 rounded-lg p-2 border border-indigo-500/20">
+                                            <a href="#" data-section-link="tutorial" class="text-xs text-indigo-200 font-semibold hover:text-indigo-100 underline flex items-center gap-1">
+                                                <i data-lucide="video" class="w-3 h-3"></i>
+                                                Watch Tutorial Video →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/20 shadow-inner">
+                                        <i data-lucide="shield-check" class="w-5 h-5 text-green-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-base mb-1 text-green-300 flex items-center gap-2">
+                                            Appstate/Cookie Tips
+                                            <span class="px-2 py-0.5 bg-green-500/20 rounded-full text-xs">IMPORTANT</span>
+                                        </h4>
+                                        <p class="text-sm text-green-100 leading-relaxed mb-2">
+                                            Use fresh, valid cookies for best results. Expired or invalid cookies will cause session failures.
+                                        </p>
+                                        <div class="bg-green-500/10 rounded-lg p-2 border border-green-500/20">
+                                            <p class="text-xs text-green-200">
+                                                <i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>
+                                                Always generate new cookies if you experience errors or login issues.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl border border-blue-500/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20 shadow-inner">
+                                        <i data-lucide="zap" class="w-5 h-5 text-blue-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-base mb-1 text-blue-300 flex items-center gap-2">
+                                            Session Persistence
+                                            <span class="px-2 py-0.5 bg-blue-500/20 rounded-full text-xs">AUTO-RESUME</span>
+                                        </h4>
+                                        <p class="text-sm text-blue-100 leading-relaxed">
+                                            Your boost sessions continue running even if you close the page. Reconnect anytime to monitor progress.
+                                        </p>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </section>
+                        <section id="profile-settings-section" class="content-section">
+                            <h2 class="section-title">Profile Settings</h2>
+                            <div class="p-5 bg-bg-card rounded-lg border border-border-color shadow-card space-y-6">
+                                <form id="profile-settings-form" method="POST">
+                                    <h3 class="text-lg font-semibold mb-4 text-primary">Update Information</h3>
+                                    <div><label for="profile-fullname">Full Name</label><input type="text" id="profile-fullname" name="fullname" required class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm"></div>
+                                    <div><label for="profile-username">Username</label><input type="text" id="profile-username" name="username" required class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm">
+                                        <p class="text-xs text-amber-400 mt-1">Changing username might affect logins if saved elsewhere. Requires re-login.</p>
+                                    </div>
+                                    <div><label for="profile-email">Email</label><input type="email" id="profile-email" name="email" required class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm"></div>
+                                    <div class="pfp-preview-container"><img id="pfp-preview-current" src="" alt="Current PFP" class="pfp-preview">
+                                        <div class="flex-grow"> <label for="profile-pfp_file">Change Profile Picture</label><input type="file" id="profile-pfp_file" name="pfp_file" accept="image/*" class="w-full text-sm text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 file:cursor-pointer">
+                                            <button type="button" id="remove-pfp-button" class="text-xs text-red-400 hover:text-red-300 mt-2">Remove Current Picture</button>
+                                        </div>
+                                    </div><button type="submit" id="update-profile-button" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all duration-200 hover:-translate-y-1"><span class="button-text">Update Profile</span></button>
+                                </form>
+                                <div class="settings-divider"></div>
+                                <form id="change-password-form" method="POST">
+                                    <h3 class="text-lg font-semibold mb-4 text-primary">Change Password</h3>
+                                    <div><label for="profile-current-password">Current Password</label><input type="password" id="profile-current-password" name="currentPassword" required autocomplete="current-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm"></div>
+                                    <div><label for="profile-new-password">New Password (min 6 chars)</label><input type="password" id="profile-new-password" name="newPassword" required autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm"></div>
+                                    <div><label for="profile-confirm-new-password">Confirm New Password</label><input type="password" id="profile-confirm-new-password" name="confirmNewPassword" required autocomplete="new-password" class="w-full p-3 rounded-lg border bg-input-bg border-input-border text-text-main focus:outline-none focus:border-primary text-sm"></div><button type="submit" id="change-password-button" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all duration-200 hover:-translate-y-1"><span class="button-text">Change Password</span></button>
+                                </form>
+                            </div>
+                        </section>
+                        <section id="about-section" class="content-section">
+                            <h2 class="section-title">About Share Boost</h2>
+                            <div class="p-5 md:p-6 bg-bg-card rounded-lg border border-border-color shadow-card space-y-5 text-sm md:text-base">
+                                <div class="text-center mb-4"><img src="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" alt="Logo" class="w-16 h-16 rounded-xl mx-auto mb-3">
+                                    <p class="text-lg font-semibold text-text-main">Automate Your Facebook Shares</p>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-base md:text-lg text-primary mb-1 flex items-center gap-2"><i data-lucide="rocket" class="w-5 h-5"></i>What is Share Boost?</h3>
+                                    <p class="text-text-muted">Share Boost helps automate sharing Facebook posts. Provide your appstate, post link, share count, and delay.</p>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-base md:text-lg text-primary mb-1 flex items-center gap-2"><i data-lucide="settings-2" class="w-5 h-5"></i>How it Works</h3>
+                                    <p class="text-text-muted">It uses your appstate to share the post link to your timeline based on your settings. Sessions run on the server and persist even if you close the page.</p>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-base md:text-lg text-primary mb-1 flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-5 h-5"></i>Features</h3>
+                                    <ul class="list-disc list-inside text-text-muted space-y-1 pl-2">
+                                        <li>Automated Facebook post sharing.</li>
+                                        <li>Customizable count & delay.</li>
+                                        <li>User accounts & auto-suspension after 3 regs per IP.</li>
+                                        <li>Free tier with limitations.</li>
+                                        <li>Premium plans for unlimited usage.</li>
+                                        <li>Real-time terminal output.</li>
+                                        <li>Persistent sessions (continue after refresh).</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-base md:text-lg text-yellow-400 mb-1 flex items-center gap-2"><i data-lucide="alert-triangle" class="w-5 h-5"></i>Important</h3>
+                                    <p class="text-text-muted">Automation may violate Facebook's terms. Excessive sharing could lead to account restrictions. Use responsibly at your own risk.</p>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="tutorial-section" class="content-section">
+                            <h2 class="section-title">How to Use Share Boost</h2>
+                            <div class="p-5 md:p-6 bg-bg-card rounded-lg border border-border-color shadow-card space-y-4">
+                                <p class="text-text-muted text-center text-sm md:text-base">Watch this video to learn how to get your appstate/cookie and use the tool.</p>
+                                <div class="video-container"><video src="https://i.imgur.com/Yla73t8.mp4" controls></video></div>
+                            </div>
+                        </section>
+                        <section id="contact-section" class="content-section">
+                            <h2 class="section-title">Contact Developer</h2>
+                            <div class="space-y-6">
+                                <div class="p-5 md:p-6 bg-gradient-to-r from-green-800/20 to-emerald-700/20 rounded-lg border border-green-500/30 shadow-card">
+                                    <div class="text-center mb-6">
+                                        <i data-lucide="smartphone" class="w-12 h-12 text-green-400 mx-auto mb-3"></i>
+                                        <h3 class="text-xl font-bold text-green-300 mb-2">GCash Payment</h3>
+                                        <p class="text-green-100 text-sm">Fast and convenient payment method</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                        <div class="text-center">
+                                            <div class="bg-white p-4 rounded-xl shadow-lg inline-block">
+                                                <img src="https://i.ibb.co/pBwWKzKW/GCash-My-QR-08072025160107-PNG.jpg" alt="GCash QR Code" class="w-56 h-56 object-contain cursor-pointer hover:scale-105 transition-transform" onclick="this.requestFullscreen()">
+                                            </div>
+                                            <p class="text-sm text-green-200 mt-2 font-medium">Scan to Pay • Click to enlarge</p>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div class="bg-green-900/40 rounded-lg p-4">
+                                                <h4 class="font-semibold text-green-300 mb-2 flex items-center gap-2">
+                                                    <i data-lucide="list-checks" class="w-4 h-4"></i>
+                                                    Quick Steps
+                                                </h4>
+                                                <ul class="text-sm text-green-100 space-y-1">
+                                                    <li>• Scan QR code with GCash app</li>
+                                                    <li>• Send exact plan amount</li>
+                                                    <li>• Screenshot payment proof</li>
+                                                    <li>• Send proof + username via Facebook</li>
+                                                </ul>
+                                            </div>
+
+                                            <div class="bg-amber-900/30 rounded-lg p-3 border border-amber-500/20">
+                                                <p class="text-xs text-amber-200">
+                                                    <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                                    Include your username for faster activation
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-5 md:p-6 bg-bg-card rounded-lg border border-border-color shadow-card text-center space-y-4">
+                                    <i data-lucide="message-circle" class="w-12 h-12 text-primary mx-auto mb-3 opacity-80"></i>
+                                    <p class="text-text-main text-base md:text-lg font-medium">Need Help or Want to Send Payment Proof?</p>
+                                    <p class="text-text-muted text-sm md:text-base">Contact the developer via Facebook for premium plan activation, support, or to send your GCash payment proof.</p>
+                                    <a href="https://www.facebook.com/joshuaapostol2006" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 w-full max-w-xs mt-4 bg-blue-600 text-white py-2.5 px-5 rounded-lg font-semibold text-sm hover:bg-blue-700 duration-300 shadow-md hover:shadow-lg active:scale-[0.98] transform transition-all hover:-translate-y-1">
+                                        <i data-lucide="facebook" class="w-5 h-5"></i><span>Message on Facebook</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-nav-bg border-t border-nav-border backdrop-blur-md z-50 md:hidden hidden">
+            <div class="max-w-xl mx-auto relative">
+                <div class="flex justify-around items-center px-1 py-2.5">
+                    <a href="#" data-section="home" class="nav-item flex flex-col items-center text-primary p-1 w-[16.66%] text-center"><i data-lucide="home" class="w-5 h-5 mb-0.5"></i><span class="text-[10px] leading-tight font-medium">Home</span></a>
+                    <a href="#" data-section="premium-plans" class="nav-item flex flex-col items-center text-text-muted p-1 w-[16.66%] text-center hover:text-primary"><i data-lucide="gem" class="w-5 h-5 mb-0.5"></i><span class="text-[10px] leading-tight font-medium">Plans</span></a>
+                    <a href="#" data-section="profile-settings" class="nav-item flex flex-col items-center text-text-muted p-1 w-[16.66%] text-center hover:text-primary"><i data-lucide="user-cog" class="w-5 h-5 mb-0.5"></i><span class="text-[10px] leading-tight font-medium">Profile</span></a>
+                    <a href="#" data-section="notifications" class="nav-item flex flex-col items-center text-text-muted p-1 w-[16.66%] text-center hover:text-primary"><i data-lucide="bell" class="w-5 h-5 mb-0.5"></i><span class="text-[10px] leading-tight font-medium">Notify</span></a>
+                </div>
+                <div class="nav-indicator absolute bottom-0 left-0 h-1 bg-primary rounded-t-full" style="width: 16.66%;"></div>
+            </div>
+        </nav>
+        <footer id="auth-footer" class="py-3 text-center text-sm text-text-muted bg-nav-bg md:hidden border-t border-nav-border mt-auto">
+            <div class="flex flex-col items-center gap-1">
+                <p class="text-xs">&copy; 2024 Share Boost. All rights reserved.</p>
+                <p class="text-xs opacity-70">Made with <span class="text-red-500">❤</span> by Joshua Apostol</p>
+            </div>
+        </footer>
+        <footer id="main-footer" class="py-4 text-center bg-nav-bg border-t border-nav-border hidden mt-auto">
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col items-center md:items-start gap-1">
+                        <p class="text-sm font-medium text-text-main">&copy; 2024 Share Boost. All rights reserved.</p>
+                        <p class="text-xs text-text-muted">Automate your Facebook shares with ease</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <a href="https://www.facebook.com/joshuaapostol2006" target="_blank" rel="noopener noreferrer" class="text-text-muted hover:text-primary transition-colors">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" data-section="about" class="text-text-muted hover:text-primary transition-colors text-xs">About</a>
+                        <a href="#" data-section="contact" class="text-text-muted hover:text-primary transition-colors text-xs">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <div id="responseModal" class="modal">
+            <div class="modal-content flex flex-col items-center gap-3">
+                <div id="modal-icon"></div>
+                <div id="responseMessage" class="text-sm font-medium"></div>
+            </div>
+        </div>
+        <div id="menu-overlay" class="fixed inset-0 bg-black/60 z-[55] hidden opacity-0"></div>
+        <div id="side-menu" class="fixed top-0 left-0 bottom-0 w-72 bg-nav-bg shadow-lg z-[60] flex flex-col p-5 border-r border-nav-border">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <img id="user-pfp-side-menu" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23374151'/%3E%3C/svg%3E" alt="PFP" class="w-10 h-10 rounded-full">
+                    <div>
+                        <div id="side-menu-fullname" class="font-semibold text-text-main"></div>
+                        <div id="side-menu-username" class="text-sm text-text-muted"></div>
+                    </div>
+                </div>
+                <button id="close-menu-button" class="text-text-muted hover:text-primary p-1 rounded-full hover:bg-white/10 transform transition-all hover:scale-110 active:scale-95">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <nav class="flex-grow space-y-1.5 overflow-y-auto pb-2">
+                <a href="#" data-section="home" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="home" class="w-5 h-5"></i> <span>Home</span></a>
+                <a href="#" data-section="profile-settings" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="user-cog" class="w-5 h-5"></i> <span>Profile Settings</span></a>
+                <a href="#" data-section="premium-plans" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="gem" class="w-5 h-5"></i> <span>Premium Plans</span></a>
+                <a href="#" data-section="terminal" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="terminal" class="w-5 h-5"></i> <span>Terminal</span></a>
+                <a href="#" data-section="notifications" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="bell" class="w-5 h-5"></i> <span>Notifications</span></a>
+                <a href="#" data-section="about" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="info" class="w-5 h-5"></i> <span>About</span></a>
+                <a href="#" data-section="tutorial" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="play-circle" class="w-5 h-5"></i> <span>Tutorial</span></a>
+                <a href="#" data-section="contact" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg"><i data-lucide="message-circle" class="w-5 h-5"></i> <span>Contact for Premium</span></a>
+                <div class="pt-2 mt-2 border-t border-nav-border/50 space-y-1.5">
+                    <a href="/apikey" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-white/10">
+                        <i data-lucide="key" class="w-5 h-5"></i>
+                        <span>API Key</span>
+                    </a>
+                    <a href="/global/chat" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-white/10">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                        <span>Global Chat</span>
+                    </a>
+                    <a href="/guard/fb" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-muted hover:text-text-main hover:bg-white/10">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                        <span>FB Guard</span>
+                    </a>
+                </div>
+                <a href="/admin" target="_blank" id="admin-link" class="side-menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg hidden mt-2"><i data-lucide="shield-check" class="w-5 h-5"></i> <span>Admin Panel</span></a>
+            </nav>
+            <div class="mt-auto pt-4 border-t border-nav-border"><a href="https://www.facebook.com/joshuaapostol2006" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-primary/10 text-primary py-2.5 px-4 rounded-lg font-semibold text-sm hover:bg-primary/20 duration-300 shadow-sm active:scale-[0.98] transition-all hover:shadow-md hover:-translate-y-0.5"><i data-lucide="code" class="w-4 h-4"></i> Developer</a></div>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+        const api_url = '/api';
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const shareBoostForm = document.getElementById('share-boost-form');
+        const profileSettingsForm = document.getElementById('profile-settings-form');
+        const changePasswordForm = document.getElementById('change-password-form');
+        const logoutButton = document.getElementById('logout-button');
+        const submitButton = document.getElementById('submit-button');
+        const stopButton = document.getElementById('stop-button');
+        const updateProfileButton = document.getElementById('update-profile-button');
+        const changePasswordButton = document.getElementById('change-password-button');
+        const userInfoHeader = document.getElementById('user-info-header');
+        const userStatusUsernameHeader = document.getElementById('user-status-username-header');
+        const userStatusPlanHeader = document.getElementById('user-status-plan-header');
+        const userStatusExpiryHeader = document.getElementById('user-status-expiry-header')?.querySelector('span');
+        const userPfpHeader = document.getElementById('user-pfp-header');
+        const userPfpHeaderMain = document.getElementById('user-pfp-header-main');
+        const userPfpSideMenu = document.getElementById('user-pfp-side-menu');
+        const sideMenuFullname = document.getElementById('side-menu-fullname');
+        const sideMenuEmail = document.getElementById('side-menu-email');
+        const profileFullnameInput = document.getElementById('profile-fullname');
+        const profileUsernameInput = document.getElementById('profile-username');
+        const profileEmailInput = document.getElementById('profile-email');
+        const profilePfpFileInput = document.getElementById('profile-pfp_file');
+        const profilePfpPreview = document.getElementById('pfp-preview-current');
+        const profileRemovePfpCheckbox = document.getElementById('profile-remove_pfp');
+        const registerPfpFileInput = document.getElementById('register-pfp_file');
+        const otpVerificationSection = document.getElementById('otp-verification-section');
+        const otpVerificationForm = document.getElementById('otp-verification-form');
+        const resendOtpBtn = document.getElementById('resend-otp-btn');
+        const backToRegisterBtn = document.getElementById('back-to-register-btn');
+        const profileCurrentPasswordInput = document.getElementById('profile-current-password');
+        const profileNewPasswordInput = document.getElementById('profile-new-password');
+        const profileConfirmNewPasswordInput = document.getElementById('profile-confirm-new-password');
+        const terminalSectionContainer = document.getElementById('terminal-section-container');
+        const terminalOutput = document.getElementById('terminal-output');
+        const mainContentArea = document.getElementById('main-content-area');
+        const authContainer = document.getElementById('auth-container');
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const adminLink = document.getElementById('admin-link');
+        const sRegisterLink = document.getElementById('register');
+        const sLoginLink = document.getElementById('login');
+        const responseModal = document.getElementById('responseModal');
+        const responseMessageElement = document.getElementById('responseMessage');
+        const responseModalIconElement = document.getElementById('modal-icon');
+        const menuButton = document.getElementById('menu-button');
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const closeMenuButton = document.getElementById('close-menu-button');
+        const sideMenuItems = document.querySelectorAll('.side-menu-item');
+        const contentSections = document.querySelectorAll('#main-content-area .content-section');
+        const amountInput = document.getElementById('amounts');
+        const amountLabel = document.getElementById('amount-label');
+        const amountLimitText = document.getElementById('amount-limit-text');
+        const bottomNav = document.getElementById('bottom-nav');
+        const navItems = bottomNav?.querySelectorAll('.nav-item');
+        const navIndicator = bottomNav?.querySelector('.nav-indicator');
+        const internalSectionLinks = document.querySelectorAll('[data-section-link]');
+        const submitButtonText = submitButton?.querySelector('.button-text');
+        const submitButtonIcon = submitButton?.querySelector('.button-icon');
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
+        let lastDisplayedCount = 0;
+        let postIdDisplayed = null;
+        let isSessionRunning = false;
+        let logsPollingInterval = null;
+        const DEFAULT_AVATAR_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%234b5563'/%3E%3Cpath d='M50 62.5c-12.4 0-22.5 10.1-22.5 22.5v2.5h45v-2.5c0-12.4-10.1-22.5-22.5-22.5z' fill='%239ca3af'/%3E%3Ccircle cx='50' cy='42.5' r='15' fill='%239ca3af'/%3E%3C/svg%3E";
+        const removePfpBtn = document.getElementById('remove-pfp-button');
+        let shouldRemovePfp = false;
+
+        let loginTurnstileToken = null;
+        let registerTurnstileToken = null;
+
+        window.onLoginTurnstileSuccess = function(token) {
+            loginTurnstileToken = token;
+            const loginBtn = document.getElementById('login-submit-btn');
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        window.onRegisterTurnstileSuccess = function(token) {
+            registerTurnstileToken = token;
+            const registerBtn = document.getElementById('register-submit-btn');
+            if (registerBtn) {
+                registerBtn.disabled = false;
+                registerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        const cookieInput = document.getElementById('cookie');
+        const saveCookieBtn = document.getElementById('save-cookie-btn');
+        const loadCookieBtn = document.getElementById('load-cookie-btn');
+        const deleteCookieBtn = document.getElementById('delete-cookie-btn');
+
+        const getStartedSection = document.getElementById('get-started-section');
+        const getStartedBtn = document.getElementById('get-started-btn');
+        const headerLoginBtn = document.getElementById('header-login-btn');
+        const headerSignupBtn = document.getElementById('header-signup-btn');
+        const authHeaderButtons = document.getElementById('auth-header-buttons');
+        const backToLandingBtn = document.getElementById('back-to-landing');
+        const backToLandingFromRegisterBtn = document.getElementById('back-to-landing-from-register');
+
+        function sGetStarted() {
+            loginSection?.classList.remove('active');
+            registerSection?.classList.remove('active');
+            getStartedSection?.classList.add('active');
+            if (authHeaderButtons) authHeaderButtons.classList.remove('hidden');
+            loadLandingAnnouncements();
+        }
+
+        function showLoginPage() {
+            getStartedSection?.classList.remove('active');
+            registerSection?.classList.remove('active');
+            loginSection?.classList.add('active');
+            if (authHeaderButtons) authHeaderButtons.classList.remove('hidden');
+        }
+
+        function showRegisterPage() {
+            getStartedSection?.classList.remove('active');
+            loginSection?.classList.remove('active');
+            registerSection?.classList.add('active');
+            if (authHeaderButtons) authHeaderButtons.classList.remove('hidden');
+        }
+
+        async function loadAnnouncements() {
+            const announcementsContainer = document.getElementById('announcements-container');
+            if (!announcementsContainer) return;
+
+            try {
+                const response = await fetch('/api/announcements');
+                if (!response.ok) throw new Error('Failed to fetch announcements');
+
+                const announcements = await response.json();
+                announcementsContainer.innerHTML = '';
+
+                if (announcements && announcements.length > 0) {
+                    announcements.forEach(announcement => {
+                        const announcementCard = createAnnouncementCard(announcement);
+                        announcementsContainer.appendChild(announcementCard);
+                    });
+                } else {
+                    announcementsContainer.innerHTML = '<p class="text-center text-text-muted py-4">No announcements at this time.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                announcementsContainer.innerHTML = '<p class="text-center text-red-400 py-4">Failed to load announcements.</p>';
+            }
+        }
+
+        async function loadLandingAnnouncements() {
+            const landingAnnouncementsContainer = document.getElementById('landing-announcements-container');
+            if (!landingAnnouncementsContainer) return;
+
+            try {
+                const response = await fetch('/api/announcements');
+                if (!response.ok) throw new Error('Failed to fetch announcements');
+
+                const announcements = await response.json();
+                landingAnnouncementsContainer.innerHTML = '';
+
+                if (announcements && announcements.length > 0) {
+                    announcements.slice(0, 3).forEach(announcement => {
+                        const announcementCard = createAnnouncementCard(announcement);
+                        landingAnnouncementsContainer.appendChild(announcementCard);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading landing announcements:', error);
+            }
+        }
+
+
+        function resetTerminalUI() {
+            lastDisplayedCount = 0;
+            postIdDisplayed = null;
+            isSessionRunning = false;
+            if (terminalOutput) terminalOutput.innerHTML = '';
+        }
+
+        function showModal(message, type = 'info') {
+            if (!responseModal || !responseMessageElement || !responseModalIconElement) return;
+            responseMessageElement.textContent = message;
+            responseModal.style.display = 'flex';
+            const mc = responseModal.querySelector('.modal-content');
+            if (!mc) return;
+            mc.className = 'modal-content flex flex-col items-center gap-3';
+            let iconName = 'info',
+                iconColor = 'text-primary';
+            if (type === 'success') {
+                mc.classList.add('success');
+                iconName = 'check-circle-2';
+                iconColor = 'text-status-active';
+            } else if (type === 'error') {
+                mc.classList.add('error');
+                iconName = 'alert-circle';
+                iconColor = 'text-status-offline';
+            } else if (type === 'loading') {
+                iconName = 'loader-circle';
+                iconColor = 'text-primary';
+                responseModalIconElement.innerHTML = `<i data-lucide="${iconName}" class="w-8 h-8 ${iconColor} animate-spin"></i>`;
+                lucide.createIcons();
+                return;
+            }
+            responseModalIconElement.innerHTML = `<i data-lucide="${iconName}" class="w-8 h-8 ${iconColor}"></i>`;
+            lucide.createIcons();
+            setTimeout(() => {
+                if (responseModal.style.display === 'flex') responseModal.style.display = 'none';
+            }, 4000);
+        }
+
+        function updateButtonState(text, iconName, enabled = true, isError = false, isRunning = false) {
+            if (!submitButton || !submitButtonText || !submitButtonIcon || !stopButton) return;
+            submitButtonText.textContent = text;
+            submitButtonIcon.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 ${iconName === 'loader-circle' ? 'animate-spin' : ''}"></i>`;
+            lucide.createIcons({
+                nodes: [submitButtonIcon.firstChild]
+            });
+            submitButton.disabled = !enabled || isRunning;
+            stopButton.disabled = !isRunning;
+            submitButton.classList.toggle('hidden', isRunning);
+            stopButton.classList.toggle('hidden', !isRunning);
+            submitButton.classList.remove('bg-primary', 'hover:bg-primary-darker', 'bg-red-700', 'hover:bg-red-800', 'opacity-60', 'cursor-not-allowed');
+            if (!enabled || isRunning) {
+                submitButton.classList.add('opacity-60', 'cursor-not-allowed');
+                submitButton.classList.add(isError ? 'bg-red-700' : 'bg-primary');
+            } else if (isError) {
+                submitButton.classList.add('bg-red-700', 'hover:bg-red-800');
+            } else {
+                submitButton.classList.add('bg-primary', 'hover:bg-primary-darker');
+            }
+        }
+
+        function updateUserUIForPlan(isPremium, premiumExpiration) {
+            if (!amountLabel || !amountInput || !amountLimitText) return;
+            if (isPremium) {
+                amountInput.placeholder = 'e.g., 1000';
+                amountInput.removeAttribute('max');
+                amountLimitText.style.display = 'none';
+            } else {
+                amountInput.placeholder = 'Max 500';
+                amountInput.setAttribute('max', '500');
+                amountLimitText.style.display = 'block';
+            }
+            validateForm();
+        }
+
+        function formatShortDate(dateString) {
+            if (!dateString) return 'Permanent';
+            try {
+                const date = new Date(dateString);
+                return isNaN(date) ? 'Invalid Date' : date.toLocaleDateString('en-CA');
+            } catch (e) {
+                return 'Error';
+            }
+        }
+
+        function extractPostId(url) {
+            if (!url) return 'N/A';
+            try {
+                let match = url.match(/(?:(?:fbid=|story_fbid=)|(?:posts|videos|reel|photo\.php|permalink\.php|watch)\/|v=)(\d+)/);
+                if (match && match[1]) return match[1];
+                match = url.match(/\/photos\/.*\.(\d+)\//);
+                if (match && match[1]) return match[1];
+                const urlParts = new URL(url).pathname.split('/');
+                const potentialId = urlParts.find(part => /^\d{10,}$/.test(part));
+                if (potentialId) return potentialId;
+                return 'Unknown ID';
+            } catch (e) {
+                return 'Error';
+            }
+        }
+
+        async function pollShareLogs() {
+            if (!authToken || !currentUser) return;
+
+            try {
+                const response = await fetch('/api/share-logs', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        stopLogsPolling();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.logs && data.logs.length > 0) {
+                    data.logs.forEach(log => {
+                        processLogMessage(log);
+                    });
+
+                    await fetch('/api/share-logs', {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                }
+
+                if (data.hasActiveTask !== isSessionRunning) {
+                    isSessionRunning = data.hasActiveTask;
+                    validateForm();
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+        }
+
+        function processLogMessage(message) {
+            let iconNodesToCreate = [];
+            switch (message.type) {
+                case 'session_start':
+                    resetTerminalUI();
+                    isSessionRunning = true;
+                    postIdDisplayed = message.postId || extractPostId(message.url);
+                    appendToTerminal(`<span class="share-log"><span class="prompt">></span> SESSION STARTED</span>`);
+                    appendToTerminal(`<span class="share-log"><span class="prompt">></span> Post Target: ${postIdDisplayed || 'N/A'}</span>`);
+                    appendToTerminal(`<span class="share-log"><span class="prompt">></span> Share Amount: ${message.target || 'N/A'}</span>`);
+                    appendToTerminal(`<span class="processing"><span class="spinner"></span><span><span class="prompt">></span> PROCESSING SHARES...</span></span>`);
+                    lastDisplayedCount = 0;
+                    validateForm();
+                    break;
+                case 'share_log':
+                    if (!isSessionRunning) {
+                        appendToTerminal('<span class="info">Monitoring started for ongoing session...</span>');
+                        isSessionRunning = true;
+                        postIdDisplayed = message.postId;
+                        appendToTerminal(`<span class="processing"><span class="spinner"></span><span><span class="prompt">></span> PROCESSING SHARES...</span></span>`);
+                    }
+                    if (message.count > lastDisplayedCount) {
+                        appendToTerminal(`<span class="share-log"><span class="prompt">></span> Shared (${message.count}/${message.target}), Post: ${postIdDisplayed || message.postId || 'N/A'}</span>`);
+                        lastDisplayedCount = message.count;
+                    }
+                    validateForm();
+                    break;
+                case 'share_error':
+                    const shareErrorMsg = `<span class="error"><i data-lucide="alert-triangle" class="w-4 h-4 mr-2 inline-block"></i><span class="prompt">[!]</span> Share Error (${message.count || 'N/A'}/${message.target || 'N/A'}): ${message.message}</span>`;
+                    appendToTerminal(shareErrorMsg);
+                    iconNodesToCreate = Array.from(terminalOutput.querySelectorAll('.error i:last-child'));
+                    break;
+                case 'session_end':
+                    const endMsgIcon = message.success ? 'check-circle' : 'x-circle';
+                    const endMsgClass = message.success ? 'success' : 'error';
+                    const endReason = message.reason === 'Stopped by User' ? 'STOPPED' : (message.success ? 'FINISHED' : 'FAILED');
+                    const endMessage = `<span class="${endMsgClass}"><i data-lucide="${endMsgIcon}" class="w-4 h-4 mr-2 inline-block"></i><span class="prompt">${message.success ? '✔' : '!'}</span> SESSION ${endReason}: ${message.reason || 'Completed/Error'} (${message.count || lastDisplayedCount}/${message.target || 'N/A'}) ${message.message && !message.success ? '- ' + message.message : ''}</span>`;
+                    appendToTerminal(endMessage);
+                    isSessionRunning = false;
+                    validateForm();
+                    iconNodesToCreate = Array.from(terminalOutput.querySelectorAll(`.${endMsgClass} i:last-child`));
+                    break;
+                case 'error':
+                    const serverErrorMsg = `<span class="error"><i data-lucide="alert-octagon" class="w-4 h-4 mr-2 inline-block"></i><span class="prompt">[!]</span> Server Error: ${message.message}</span>`;
+                    appendToTerminal(serverErrorMsg);
+                    iconNodesToCreate = Array.from(terminalOutput.querySelectorAll('.error i:last-child'));
+                    break;
+                case 'info':
+                    appendToTerminal(`<span class="info">${message.message}</span>`);
+                    if (message.message.includes('stopped')) {
+                        isSessionRunning = false;
+                        validateForm();
+                    }
+                    break;
+            }
+            if (iconNodesToCreate.length > 0) lucide.createIcons({
+                nodes: iconNodesToCreate
+            });
+        }
+
+        function startLogsPolling() {
+            stopLogsPolling();
+            if (authToken && currentUser) {
+                if (terminalOutput) terminalOutput.innerHTML = '<span class="info">Connecting to session monitor...</span>';
+                pollShareLogs();
+                logsPollingInterval = setInterval(pollShareLogs, 2000);
+            }
+        }
+
+        function stopLogsPolling() {
+            if (logsPollingInterval) {
+                clearInterval(logsPollingInterval);
+                logsPollingInterval = null;
+            }
+            if (terminalOutput) terminalOutput.innerHTML = '<span class="info">Disconnected. Log in to view sessions.</span>';
+            isSessionRunning = false;
+        }
+
+        function appendToTerminal(htmlContent) {
+            if (!terminalOutput) return;
+            const MAX_LINES = 250;
+            terminalOutput.innerHTML += htmlContent + '<br>';
+            const lines = terminalOutput.innerHTML.split('<br>');
+            if (lines.length > MAX_LINES + 1) {
+                terminalOutput.innerHTML = lines.slice(lines.length - MAX_LINES - 1).join('<br>');
+            }
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function validateForm() {
+            if (!shareBoostForm || !authToken || !currentUser) {
+                if (!authToken) updateButtonState('Please Log In', 'log-in', false, false, false);
+                else updateButtonState('Loading...', 'loader-circle', false, false, false);
+                return;
+            }
+            const allRequiredFilled = Array.from(shareBoostForm.elements).every(el => !el.required || el.type === 'hidden' || el.offsetParent === null || (el.value && el.value.trim() !== ''));
+            const amountValue = parseInt(amountInput.value, 10);
+            let amountIsValid = true;
+            if (!currentUser.isPremium && !isNaN(amountValue) && amountValue > 500) {
+                amountIsValid = false;
+            }
+            if (isSessionRunning) {
+                updateButtonState('Boosting...', 'loader-circle', false, false, true);
+            } else if (!allRequiredFilled) {
+                updateButtonState('Fill All Fields', 'edit-3', false, false, false);
+            } else if (!amountIsValid) {
+                updateButtonState('Limit: 500 Shares', 'alert-circle', false, true, false);
+            } else {
+                updateButtonState('Start Boosting', 'rocket', true, false, false);
+            }
+        }
+
+        function updateUserInfoDisplay(userData) {
+            if (!userData) return;
+            const timestamp = Date.now();
+            let pfpSrc = DEFAULT_AVATAR_SVG;
+            if (userData.pfp_url) {
+                pfpSrc = userData.pfp_url;
+            }
+            const userPfpHeaderLink = document.getElementById('user-pfp-header-link');
+            const userPfpSideMenuLink = document.getElementById('user-pfp-side-menu-link');
+
+            if (userPfpHeader) {
+                userPfpHeader.src = pfpSrc;
+                userPfpHeader.onerror = () => {
+                    userPfpHeader.src = DEFAULT_AVATAR_SVG;
+                };
+                if (userPfpHeaderLink) {
+                    userPfpHeaderLink.href = `/pfp?id=${userData.userId}`;
+                    userPfpHeaderLink.classList.remove('hidden');
+                }
+            }
+            if (userPfpHeaderMain) {
+                userPfpHeaderMain.src = pfpSrc;
+                userPfpHeaderMain.onerror = () => {
+                    userPfpHeaderMain.src = DEFAULT_AVATAR_SVG;
+                };
+            }
+            if (userStatusUsernameHeader) {
+                userStatusUsernameHeader.textContent = userData.username;
+                userStatusUsernameHeader.title = userData.fullname || userData.username;
+            }
+            if (userStatusPlanHeader) {
+                const planSpan = userStatusPlanHeader.querySelector('span');
+                if (planSpan) planSpan.textContent = userData.isPremium ? 'Premium' : 'Free';
+                userStatusPlanHeader.className = 'status-badge flex-shrink-0';
+                userStatusPlanHeader.classList.add(userData.isPremium ? 'status-badge-premium' : 'status-badge-free');
+            }
+            if (userStatusExpiryHeader) {
+                userStatusExpiryHeader.textContent = formatShortDate(userData.premiumExpiration);
+            }
+            if (userInfoHeader) {
+                userInfoHeader.classList.remove('hidden');
+                userInfoHeader.classList.add('flex');
+                try {
+                    lucide.createIcons({
+                        nodes: [userInfoHeader.querySelector('[data-lucide]'), userStatusPlanHeader?.querySelector('[data-lucide]'), document.getElementById('user-status-expiry-header')?.querySelector('[data-lucide]')].filter(Boolean)
+                    });
+                } catch (e) {}
+            }
+            if (userPfpSideMenu) {
+                userPfpSideMenu.src = pfpSrc;
+                userPfpSideMenu.onerror = () => {
+                    userPfpSideMenu.src = DEFAULT_AVATAR_SVG;
+                };
+                if (userPfpSideMenuLink) {
+                    userPfpSideMenuLink.href = `/pfp?id=${userData.userId}`;
+                }
+            }
+            if (sideMenuFullname) sideMenuFullname.textContent = userData.fullname || 'N/A';
+            if (sideMenuEmail) sideMenuEmail.textContent = userData.email || 'N/A';
+            if (profilePfpPreview) {
+                profilePfpPreview.src = userData.pfp_url || DEFAULT_AVATAR_SVG;
+                profilePfpPreview.onerror = () => {
+                    profilePfpPreview.src = DEFAULT_AVATAR_SVG;
+                };
+            }
+        }
+
+        function setLoggedInState(userData) {
+            currentUser = userData;
+            authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                setLoggedOutState();
+                return;
+            }
+            updateUserInfoDisplay(userData);
+            if (logoutButton) logoutButton.classList.remove('hidden');
+            if (authContainer) authContainer.classList.add('hidden');
+            if (mainContentArea) {
+                mainContentArea.classList.remove('hidden');
+                mainContentArea.classList.add('active');
+            }
+            if (adminLink) adminLink.classList.toggle('hidden', userData.username !== 'admin');
+
+            if (headerLoginBtn) headerLoginBtn.classList.add('hidden');
+            if (headerSignupBtn) headerSignupBtn.classList.add('hidden');
+
+            if (bottomNav) bottomNav.classList.remove('hidden');
+            const authFooter = document.getElementById('auth-footer');
+            if (authFooter) authFooter.classList.add('hidden');
+            const mainFooter = document.getElementById('main-footer');
+            if (mainFooter) mainFooter.classList.add('hidden');
+
+            updateUserUIForPlan(userData.isPremium, userData.premiumExpiration);
+            updatePlanButtons();
+            resetTerminalUI();
+            startLogsPolling();
+            loadAnnouncements();
+            validateForm();
+        }
+
+        function setLoggedOutState() {
+            currentUser = null;
+            authToken = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('cachedUserData');
+            const userPfpHeaderLink = document.getElementById('user-pfp-header-link');
+            if (userPfpHeaderLink) userPfpHeaderLink.classList.add('hidden');
+            if (userInfoHeader) userInfoHeader.classList.add('hidden');
+            if (logoutButton) logoutButton.classList.add('hidden');
+
+            // Show login/signup buttons when logged out
+            if (headerLoginBtn) headerLoginBtn.classList.remove('hidden');
+            if (headerSignupBtn) headerSignupBtn.classList.remove('hidden');
+
+            // Hide bottom nav when logged out, show auth footer only
+            if (bottomNav) bottomNav.classList.add('hidden');
+            const authFooter = document.getElementById('auth-footer');
+            if (authFooter) authFooter.classList.remove('hidden');
+            const mainFooter = document.getElementById('main-footer');
+            if (mainFooter) mainFooter.classList.add('hidden');
+
+            if (userPfpSideMenu) userPfpSideMenu.src = DEFAULT_AVATAR_SVG;
+            if (sideMenuFullname) sideMenuFullname.textContent = "Guest User";
+            if (sideMenuEmail) sideMenuEmail.textContent = "";
+            if (authContainer) authContainer.classList.remove('hidden');
+            if (mainContentArea) mainContentArea.classList.remove('active');
+            if (terminalOutput) terminalOutput.innerHTML = '<span class="info">Log in to view session status.</span>';
+            if (getStartedSection) getStartedSection.classList.add('active');
+            if (loginSection) loginSection.classList.remove('active');
+            if (registerSection) registerSection.classList.remove('active');
+            if (adminLink) adminLink.classList.add('hidden');
+            updateUserUIForPlan(false, null);
+            stopLogsPolling();
+            resetTerminalUI();
+            if (profilePfpPreview) {
+                profilePfpPreview.src = DEFAULT_AVATAR_SVG;
+            }
+            validateForm();
+        }
+        loginForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!loginTurnstileToken) {
+                showModal('Please complete the CAPTCHA verification.', 'error');
+                return;
+            }
+
+            const username = loginForm.username.value;
+            const password = loginForm.password.value;
+            const btn = loginForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.textContent = 'Logging in...';
+                btn.disabled = true;
+            }
+            try {
+                const response = await fetch(`${api_url}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        turnstileToken: loginTurnstileToken
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                    setLoggedInState(data.user);
+                    showModal('Login successful', 'success');
+                    setActiveSection('home');
+                } else {
+                    throw new Error(data.error || 'Login failed');
+                }
+            } catch (error) {
+                const specificErrorMessage = error.message.includes('Account suspended') ? error.message : `Login Error: ${error.message}`;
+                showModal(specificErrorMessage, 'error');
+                setLoggedOutState();
+            } finally {
+                if (btn) {
+                    btn.textContent = 'Login';
+                    btn.disabled = false;
+                }
+            }
+        });
+        registerForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!registerTurnstileToken) {
+                showModal('Please complete the CAPTCHA verification.', 'error');
+                return;
+            }
+
+            const fullname = registerForm.fullname.value;
+            const username = registerForm.username.value;
+            const email = registerForm.email.value;
+            const password = registerForm.password.value;
+            const confirmPassword = registerForm.confirmPassword.value;
+            const pfpFile = registerPfpFileInput.files[0];
+            const btn = registerForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.textContent = 'Registering...';
+                btn.disabled = true;
+            }
+            if (password !== confirmPassword) {
+                showModal('Passwords do not match.', 'error');
+                if (btn) {
+                    btn.textContent = 'Register';
+                    btn.disabled = false;
+                }
+                return;
+            }
+            if (password.length < 6) {
+                showModal('Password must be at least 6 characters long.', 'error');
+                if (btn) {
+                    btn.textContent = 'Register';
+                    btn.disabled = false;
+                }
+                return;
+            }
+            const formData = new FormData();
+            formData.append('fullname', fullname);
+            formData.append('username', username);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('confirmPassword', confirmPassword);
+            formData.append('turnstileToken', registerTurnstileToken);
+            if (pfpFile) {
+                formData.append('pfp_file', pfpFile);
+            }
+            try {
+                const response = await fetch(`${api_url}/auth/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok && data.otpSent) {
+
+                    registerSection?.classList.remove('active');
+                    document.getElementById('otp-verification-section')?.classList.add('active');
+                    document.getElementById('otp-email-display').textContent = email;
+                    showModal('Verification code sent to your email!', 'success');
+                } else {
+                    throw new Error(data.error || `Registration failed (${response.status})`);
+                }
+            } catch (error) {
+                showModal(`Registration Error: ${error.message}`, 'error');
+            } finally {
+                if (btn) {
+                    btn.textContent = 'Register';
+                    btn.disabled = false;
+                }
+            }
+        });
+        logoutButton?.addEventListener('click', async () => {
+            if (!authToken) return;
+            const currentToken = authToken;
+            setLoggedOutState();
+            showModal('Logged out.', 'info');
+            setActiveSection('home');
+            try {
+                await fetch(`${api_url}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+            } catch (error) {}
+        });
+
+        removePfpBtn?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove your current profile picture?')) {
+                shouldRemovePfp = true;
+                profilePfpPreview.src = DEFAULT_AVATAR_SVG;
+                this.textContent = 'Picture will be removed on update';
+                this.disabled = true;
+                this.classList.add('opacity-60');
+            }
+        });
+
+        shareBoostForm?.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            if (isSessionRunning) {
+                showModal('A session is already running. Stop it first or wait for it to finish.', 'error');
+                return;
+            }
+            if (terminalOutput) terminalOutput.innerHTML = '<span class="info">Submitting boost request...</span>';
+            if (!authToken) {
+                showModal('Please log in first.', 'error');
+                return;
+            }
+            validateForm();
+            if (submitButton.disabled) {
+                const isLimitError = submitButtonText.textContent.includes('Limit');
+                showModal(isLimitError ? 'Share limit exceeded for free plan.' : 'Please fill all fields correctly.', 'error');
+                return;
+            }
+            const url = document.getElementById('urls').value;
+            const amount = document.getElementById('amounts').value;
+            const cookie = document.getElementById('cookie').value;
+            const interval = document.getElementById('intervals').value;
+            updateButtonState('Submitting...', 'loader-circle', false);
+            try {
+                const response = await fetch(`${api_url}/submit`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        cookie,
+                        url,
+                        amount: parseInt(amount),
+                        interval: parseInt(interval)
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    signal: AbortSignal.timeout(20000)
+                });
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({
+                        error: `Server error ${response.status}`
+                    }));
+                    throw new Error(data.error || `Submit request failed (${response.status})`);
+                } else {
+                    const data = await response.json();
+                    showModal(data.message || 'Request submitted!', 'success');
+                    appendToTerminal(`<span class="info">Request accepted. Waiting for session start...</span>`);
+                    document.getElementById('cookie').value = '';
+                    isSessionRunning = true;
+                }
+            } catch (error) {
+                const errorMessage = error.name === 'AbortError' ? 'Request timed out.' : `Submit Error: ${error.message}`;
+                showModal(errorMessage, 'error');
+                if (terminalOutput) appendToTerminal(`<span class="error">Submit failed: ${error.message}</span>`);
+                isSessionRunning = false;
+            } finally {
+                validateForm();
+            }
+        });
+        stopButton?.addEventListener('click', async () => {
+            if (!isSessionRunning || !authToken) {
+                showModal('No active session to stop.', 'info');
+                isSessionRunning = false;
+                validateForm();
+                return;
+            }
+
+            appendToTerminal(`<span class="info">Requesting session stop...</span>`);
+            if (stopButton) {
+                stopButton.disabled = true;
+                const buttonText = stopButton.querySelector('.button-text');
+                if (buttonText) buttonText.textContent = 'Stopping...';
+            }
+
+            try {
+                const response = await fetch('/stop-share', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showModal('Session stopped successfully.', 'success');
+                    appendToTerminal(`<span class="info">Session stopped by user.</span>`);
+                    isSessionRunning = false;
+                } else {
+                    showModal(data.message || 'Failed to stop session.', 'error');
+                }
+            } catch (error) {
+                showModal('Error stopping session.', 'error');
+                appendToTerminal(`<span class="error">Failed to stop session: ${error.message}</span>`);
+            } finally {
+                if (stopButton) {
+                    stopButton.disabled = false;
+                    const buttonText = stopButton.querySelector('.button-text');
+                    if (buttonText) buttonText.textContent = 'Stop Session';
+                }
+                validateForm();
+            }
+        });
+        profileSettingsForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!authToken || !currentUser) {
+                showModal('You must be logged in to update your profile.', 'error');
+                return;
+            }
+            const fullname = profileFullnameInput.value;
+            const username = profileUsernameInput.value;
+            const email = profileEmailInput.value;
+            const pfpFile = profilePfpFileInput.files[0];
+            const removePfp = shouldRemovePfp;
+            const formData = new FormData();
+            let changesMade = false;
+            if (fullname !== currentUser.fullname) {
+                formData.append('fullname', fullname);
+                changesMade = true;
+            }
+            if (username !== currentUser.username) {
+                formData.append('username', username);
+                changesMade = true;
+            }
+            if (email !== currentUser.email) {
+                formData.append('email', email);
+                changesMade = true;
+            }
+            if (pfpFile) {
+                formData.append('pfp_file', pfpFile);
+                changesMade = true;
+            }
+            if (removePfp) {
+                formData.append('remove_pfp', 'true');
+                changesMade = true;
+            }
+            if (!changesMade) {
+                showModal('No changes detected.', 'info');
+                return;
+            }
+            if (updateProfileButton) {
+                updateProfileButton.disabled = true;
+                const buttonText = updateProfileButton.querySelector('.button-text');
+                if (buttonText) buttonText.textContent = 'Updating...';
+            }
+            try {
+                const response = await fetch(`${api_url}/profile/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showModal('Profile updated successfully!', 'success');
+                    currentUser = {
+                        ...currentUser,
+                        ...data.user
+                    };
+                    updateUserInfoDisplay(currentUser);
+                    populateProfileForm(currentUser);
+                    profilePfpFileInput.value = '';
+                    shouldRemovePfp = false;
+                    if (removePfpBtn) {
+                        removePfpBtn.textContent = 'Remove Current Picture';
+                        removePfpBtn.disabled = false;
+                        removePfpBtn.classList.remove('opacity-60');
+                    }
+                } else {
+                    throw new Error(data.error || `Update failed (${response.status})`);
+                }
+            } catch (error) {
+                showModal(`Update Error: ${error.message}`, 'error');
+            } finally {
+                if (updateProfileButton) {
+                    updateProfileButton.disabled = false;
+                    const buttonText = updateProfileButton.querySelector('.button-text');
+                    if (buttonText) buttonText.textContent = 'Update Profile';
+                }
+            }
+        });
+        changePasswordForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!authToken) {
+                showModal('You must be logged in to change your password.', 'error');
+                return;
+            }
+            const currentPassword = profileCurrentPasswordInput.value;
+            const newPassword = profileNewPasswordInput.value;
+            const confirmNewPassword = profileConfirmNewPasswordInput.value;
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                showModal('Please fill all password fields.', 'error');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showModal('New password must be at least 6 characters.', 'error');
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                showModal('New passwords do not match.', 'error');
+                return;
+            }
+            if (changePasswordButton) {
+                changePasswordButton.disabled = true;
+                const buttonText = changePasswordButton.querySelector('.button-text');
+                if (buttonText) buttonText.textContent = 'Changing...';
+            }
+            try {
+                const response = await fetch(`${api_url}/profile/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword,
+                        confirmNewPassword
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showModal('Password changed successfully!', 'success');
+                    changePasswordForm.reset();
+                } else {
+                    throw new Error(data.error || `Password change failed (${response.status})`);
+                }
+            } catch (error) {
+                showModal(`Password Change Error: ${error.message}`, 'error');
+            } finally {
+                if (changePasswordButton) {
+                    changePasswordButton.disabled = false;
+                    const buttonText = changePasswordButton.querySelector('.button-text');
+                    if (buttonText) buttonText.textContent = 'Change Password';
+                }
+            }
+        });
+
+        function populateProfileForm(userData) {
+            if (!userData || !profileSettingsForm) return;
+
+            if (profileFullnameInput) profileFullnameInput.value = userData.fullname || '';
+            if (profileUsernameInput) profileUsernameInput.value = userData.username || '';
+            if (profileEmailInput) profileEmailInput.value = userData.email || '';
+            if (profilePfpFileInput) profilePfpFileInput.value = '';
+
+            shouldRemovePfp = false;
+
+            if (removePfpBtn) {
+                removePfpBtn.textContent = 'Remove Current Picture';
+                removePfpBtn.disabled = false;
+                removePfpBtn.classList.remove('opacity-60');
+            }
+
+            if (profilePfpPreview) {
+                profilePfpPreview.src = userData.pfp_url || DEFAULT_AVATAR_SVG;
+                profilePfpPreview.onerror = () => {
+                    profilePfpPreview.src = DEFAULT_AVATAR_SVG;
+                };
+            }
+        }
+
+        function setActiveSection(sectionName) {
+            const actualTargetId = sectionName === 'terminal' ? 'terminal-section-container' : `${sectionName}-section`;
+            let sectionFound = false;
+            contentSections.forEach(section => {
+                const isActive = section.id === actualTargetId;
+                section.classList.toggle('active', isActive);
+                if (isActive) sectionFound = true;
+            });
+            if (!sectionFound && document.getElementById('home-section')) {
+                document.getElementById('home-section').classList.add('active');
+                sectionName = 'home';
+            }
+            if (sectionName === 'profile-settings' && currentUser) {
+                populateProfileForm(currentUser);
+            }
+
+            if (sectionName === 'premium-plans' && currentUser) {
+                updatePlanButtons();
+            }
+            if (actualTargetId === 'terminal-section-container') {
+                lucide.createIcons({
+                    nodes: Array.from(document.querySelectorAll('#terminal-section-container .terminal-header i'))
+                });
+            }
+            sideMenuItems.forEach((sideItem) => {
+                if (!sideItem.href || sideItem.href.endsWith('/global/chat') || sideItem.href.endsWith('/admin') || sideItem.href.endsWith('/guard/fb') || sideItem.href.endsWith('/sms')) return;
+                const itemSection = sideItem.dataset.section;
+                const iconElement = sideItem.querySelector('i[data-lucide]') || sideItem.querySelector('svg');
+                const isActive = itemSection === sectionName;
+                sideItem.classList.toggle('text-text-main', isActive);
+                sideItem.classList.toggle('bg-primary/10', isActive);
+                sideItem.classList.toggle('font-medium', isActive);
+                sideItem.classList.toggle('text-text-muted', !isActive);
+                sideItem.classList.toggle('hover:text-text-main', !isActive);
+                sideItem.classList.toggle('hover:bg-white/10', !isActive);
+                if (iconElement) {
+                    iconElement.classList.toggle('text-primary', isActive);
+                }
+            });
+            if (navItems && navIndicator && window.innerWidth < 768) {
+                const sectionNavItems = Array.from(navItems).filter(item => item.dataset.section);
+                const navItemCount = sectionNavItems.length || 1;
+                const indicatorWidthPercent = 100 / navItemCount;
+                let activeIndex = sectionNavItems.findIndex(navItem => navItem.dataset.section === sectionName);
+                if (activeIndex === -1) activeIndex = 0;
+                navIndicator.style.width = `${indicatorWidthPercent}%`;
+                navIndicator.style.transform = `translateX(${activeIndex*100}%)`;
+                navItems.forEach((navItem) => {
+                    const isSpecialLink = navItem.href && (navItem.href.endsWith('/global/chat') || navItem.href.endsWith('/guard/fb') || navItem.href.endsWith('/sms'));
+                    const isActive = !isSpecialLink && navItem.dataset.section === sectionName;
+                    navItem.classList.toggle('text-primary', isActive);
+                    navItem.classList.toggle('text-text-muted', !isActive);
+                    navItem.classList.toggle('hover:text-primary', !isActive);
+                });
+            }
+            closeSideMenu();
+            window.scrollTo(0, 0);
+        }
+        sideMenuItems.forEach((item) => item.addEventListener('click', function(e) {
+            if (this.id !== 'admin-link' && this.dataset.section) {
+                e.preventDefault();
+                setActiveSection(this.dataset.section);
+            }
+        }));
+        navItems?.forEach(item => {
+            if (item.dataset.section) {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    setActiveSection(item.dataset.section);
+                });
+            }
+        });
+        internalSectionLinks?.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.sectionLink;
+                if (section) setActiveSection(section);
+            });
+        });
+
+        function openSideMenu() {
+            if (!menuOverlay || !sideMenu) return;
+            menuOverlay.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                sideMenu.classList.add('open');
+                menuOverlay.classList.remove('opacity-0');
+                menuOverlay.classList.add('opacity-100');
+            });
+        }
+
+        function closeSideMenu() {
+            if (!menuOverlay || !sideMenu) return;
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('opacity-100');
+            menuOverlay.classList.add('opacity-0');
+            setTimeout(() => menuOverlay.classList.add('hidden'), 300);
+        }
+        menuButton?.addEventListener('click', openSideMenu);
+        closeMenuButton?.addEventListener('click', closeSideMenu);
+        menuOverlay?.addEventListener('click', closeSideMenu);
+        responseModal?.addEventListener('click', (e) => {
+            if (e.target === responseModal) responseModal.style.display = 'none';
+        });
+
+        function updatePlanButtons() {
+            if (!currentUser) return;
+
+            const planButtons = document.querySelectorAll('.plan-request-button, .plan-button');
+
+            planButtons.forEach(button => {
+                const plan = button.dataset.plan;
+
+                if (currentUser.isPremium && !currentUser.premiumExpiration) {
+                    button.disabled = true;
+                    button.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Purchased`;
+                    button.classList.add('opacity-60', 'cursor-not-allowed');
+                    button.classList.remove('hover:bg-primary-darker', 'hover:bg-blue-700', 'hover:bg-green-700', 'hover:from-amber-900', 'hover:to-black');
+                } else if (currentUser.isPremium && currentUser.premiumExpiration) {
+                    const currentPlanValue = getCurrentPlanValue(currentUser.premiumExpiration);
+                    const buttonPlanValue = getPlanValue(plan);
+
+                    if (buttonPlanValue <= currentPlanValue) {
+                        button.disabled = true;
+                        button.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Current Plan`;
+                        button.classList.add('opacity-60', 'cursor-not-allowed');
+                        button.classList.remove('hover:bg-primary-darker', 'hover:bg-blue-700', 'hover:bg-green-700');
+                    }
+                }
+            });
+
+            lucide.createIcons({
+                nodes: Array.from(document.querySelectorAll('.plan-request-button i, .plan-button i'))
+            });
+        }
+
+        function getPlanValue(plan) {
+            switch (plan) {
+                case '1 Week':
+                    return 1;
+                case '2 Weeks':
+                    return 2;
+                case '1 Year':
+                    return 3;
+                case 'Permanent':
+                    return 4;
+                default:
+                    return 0;
+            }
+        }
+
+        function getCurrentPlanValue(expirationDate) {
+            if (!expirationDate) return 4;
+
+            const now = new Date();
+            const expiry = new Date(expirationDate);
+            const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+
+            if (daysLeft >= 365) return 3;
+            if (daysLeft >= 14) return 2;
+            if (daysLeft >= 7) return 1;
+            return 0;
+        }
+
+        document.querySelectorAll('.plan-button').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const currentButton = e.currentTarget;
+                if (!authToken) {
+                    showModal('Please log in first to request a plan.', 'error');
+                    return;
+                }
+
+                if (currentButton.disabled) {
+                    showModal('You already have this plan or a higher one.', 'info');
+                    return;
+                }
+
+                const plan = currentButton.dataset.plan;
+                currentButton.disabled = true;
+                const originalContent = currentButton.innerHTML;
+                currentButton.innerHTML = `<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Requesting...`;
+                lucide.createIcons({
+                    nodes: [currentButton.querySelector('i')]
+                });
+                try {
+                    const response = await fetch(`${api_url}/premium/request`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({
+                            plan
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        showModal(data.message || `Request for ${plan} plan sent! Contact the developer for activation.`, 'success');
+                        setActiveSection('contact');
+                    } else {
+                        throw new Error(data.error || 'Plan request failed');
+                    }
+                } catch (error) {
+                    showModal(`Request Error: ${error.message}`, 'error');
+                } finally {
+                    currentButton.disabled = false;
+                    currentButton.innerHTML = originalContent;
+                    try {
+                        lucide.createIcons({
+                            nodes: Array.from(currentButton.querySelectorAll('i'))
+                        });
+                    } catch (e) {}
+                }
+            });
+        });
+        sRegisterLink?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegisterPage();
+        });
+        sLoginLink?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginPage();
+        });
+
+        otpVerificationForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otpCode = document.getElementById('otp-code').value;
+            const email = document.getElementById('otp-email-display').textContent;
+            const btn = otpVerificationForm.querySelector('button[type="submit"]');
+
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="loader-circle" class="w-5 h-5 animate-spin mr-2"></i>Verifying...';
+                btn.disabled = true;
+                btn.style.textDecoration = 'none';
+                lucide.createIcons();
+            }
+
+            try {
+                const response = await fetch(`${api_url}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        otp: otpCode
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showModal(data.message || 'Account verified successfully!', 'success');
+                    registerForm?.reset();
+                    otpVerificationForm?.reset();
+                    otpVerificationSection?.classList.remove('active');
+                    loginSection?.classList.add('active');
+                } else {
+                    throw new Error(data.error || 'OTP verification failed');
+                }
+            } catch (error) {
+                showModal(`Verification Error: ${error.message}`, 'error');
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>Verify Account';
+                    btn.disabled = false;
+                    btn.style.textDecoration = 'none';
+                    lucide.createIcons();
+                }
+            }
+        });
+
+        resendOtpBtn?.addEventListener('click', async () => {
+            const email = document.getElementById('otp-email-display').textContent;
+            const btn = resendOtpBtn;
+
+            if (btn.disabled) return;
+
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 animate-spin mr-2"></i>Sending...';
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+            lucide.createIcons();
+
+            try {
+                const response = await fetch(`${api_url}/auth/resend-otp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showModal('New verification code sent!', 'success');
+                    let countdown = 50;
+                    const countdownInterval = setInterval(() => {
+                        btn.innerHTML = `<i data-lucide="clock" class="w-4 h-4 mr-2"></i>Resend in ${countdown}s`;
+                        lucide.createIcons();
+                        countdown--;
+                        if (countdown < 0) {
+                            clearInterval(countdownInterval);
+                            btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>Resend Code';
+                            btn.classList.remove('opacity-75');
+                            btn.disabled = false;
+                            lucide.createIcons();
+                        }
+                    }, 1000);
+                } else {
+                    throw new Error(data.error || 'Failed to resend OTP');
+                }
+            } catch (error) {
+                showModal(`Resend Error: ${error.message}`, 'error');
+                btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>Resend Code';
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+                lucide.createIcons();
+            }
+        });
+
+        backToRegisterBtn?.addEventListener('click', () => {
+            otpVerificationSection?.classList.remove('active');
+            registerSection?.classList.add('active');
+            otpVerificationForm?.reset();
+        });
+
+        const forgotPasswordLink = document.getElementById('forgot-password');
+        const forgotPasswordSection = document.getElementById('forgot-password-section');
+        const resetPasswordSection = document.getElementById('reset-password-section');
+        const forgotPasswordForm = document.getElementById('forgot-password-form');
+        const resetPasswordForm = document.getElementById('reset-password-form');
+        const backToLoginBtn = document.getElementById('back-to-login-btn');
+        const backToForgotBtn = document.getElementById('back-to-forgot-btn');
+
+        forgotPasswordLink?.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection?.classList.remove('active');
+            forgotPasswordSection?.classList.add('active');
+        });
+
+        backToLoginBtn?.addEventListener('click', () => {
+            forgotPasswordSection?.classList.remove('active');
+            loginSection?.classList.add('active');
+            forgotPasswordForm?.reset();
+        });
+
+        backToForgotBtn?.addEventListener('click', () => {
+            resetPasswordSection?.classList.remove('active');
+            forgotPasswordSection?.classList.add('active');
+            resetPasswordForm?.reset();
+        });
+
+        forgotPasswordForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            const btn = forgotPasswordForm.querySelector('button[type="submit"]');
+
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="loader-circle" class="w-5 h-5 animate-spin mr-2"></i>Sending...';
+                btn.disabled = true;
+                lucide.createIcons();
+            }
+
+            try {
+                const response = await fetch(`${api_url}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showModal(data.message || 'Reset code sent to your email!', 'success');
+                    document.getElementById('reset-email-display').textContent = email;
+                    forgotPasswordSection?.classList.remove('active');
+                    resetPasswordSection?.classList.add('active');
+                } else {
+                    throw new Error(data.error || 'Failed to send reset code');
+                }
+            } catch (error) {
+                showModal(`Error: ${error.message}`, 'error');
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="send" class="w-5 h-5 mr-2"></i>Send Reset Code';
+                    btn.disabled = false;
+                    lucide.createIcons();
+                }
+            }
+        });
+
+        resetPasswordForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email-display').textContent;
+            const otp = document.getElementById('reset-otp-code').value;
+            const newPassword = document.getElementById('reset-new-password').value;
+            const confirmNewPassword = document.getElementById('reset-confirm-password').value;
+            const btn = resetPasswordForm.querySelector('button[type="submit"]');
+
+            if (newPassword !== confirmNewPassword) {
+                showModal('Passwords do not match', 'error');
+                return;
+            }
+
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="loader-circle" class="w-5 h-5 animate-spin mr-2"></i>Resetting...';
+                btn.disabled = true;
+                lucide.createIcons();
+            }
+
+            try {
+                const response = await fetch(`${api_url}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        otp,
+                        newPassword,
+                        confirmNewPassword
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showModal(data.message || 'Password reset successfully!', 'success');
+                    resetPasswordForm?.reset();
+                    resetPasswordSection?.classList.remove('active');
+                    loginSection?.classList.add('active');
+                } else {
+                    throw new Error(data.error || 'Failed to reset password');
+                }
+            } catch (error) {
+                showModal(`Error: ${error.message}`, 'error');
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>Reset Password';
+                    btn.disabled = false;
+                    lucide.createIcons();
+                }
+            }
+        });
+
+        function createAnnouncementCard(announcement) {
+            const typeColors = {
+                'info': {
+                    bg: 'bg-info-bg',
+                    border: 'border-info-border',
+                    icon: 'info',
+                    iconColor: 'text-primary'
+                },
+                'warning': {
+                    bg: 'bg-warning-bg',
+                    border: 'border-warning-border',
+                    icon: 'alert-triangle',
+                    iconColor: 'text-yellow-400'
+                },
+                'success': {
+                    bg: 'bg-success-bg',
+                    border: 'border-green-500',
+                    icon: 'check-circle',
+                    iconColor: 'text-green-400'
+                },
+                'error': {
+                    bg: 'bg-error-bg',
+                    border: 'border-red-500',
+                    icon: 'alert-octagon',
+                    iconColor: 'text-red-400'
+                }
+            };
+
+            const colors = typeColors[announcement.type] || typeColors['info'];
+
+            const announcementEl = document.createElement('div');
+            announcementEl.className = `flex items-start gap-3 p-4 ${colors.bg} rounded-lg border ${colors.border} shadow-sm`;
+            announcementEl.innerHTML = `
+                <i data-lucide="${colors.icon}" class="w-5 h-5 ${colors.iconColor} shrink-0 mt-1"></i>
+                <div class="flex-grow">
+                    <h4 class="font-medium text-sm mb-0.5 ${colors.iconColor}">${announcement.title}</h4>
+                    <p class="text-sm text-text-muted">${announcement.content}</p>
+                    <p class="text-xs text-text-muted mt-1 opacity-70">By ${announcement.created_by_username} • ${new Date(announcement.created_at).toLocaleDateString()}</p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                lucide.createIcons({
+                    nodes: [announcementEl.querySelector('[data-lucide]')]
+                });
+            }, 0);
+
+            return announcementEl;
+        }
+
+
+        async function checkAuthAndInitialize() {
+            if (!authToken) {
+                setLoggedOutState();
+                return;
+            }
+
+            try {
+                const tokenParts = authToken.split('.');
+                if (tokenParts.length !== 3) {
+                    setLoggedOutState();
+                    return;
+                }
+
+                const payload = JSON.parse(atob(tokenParts[1]));
+
+                if (payload.exp && payload.exp * 1000 < Date.now()) {
+                    setLoggedOutState();
+                    return;
+                }
+
+                let cachedUser = localStorage.getItem('cachedUserData');
+                if (cachedUser) {
+                    try {
+                        const userData = JSON.parse(cachedUser);
+                        setLoggedInState(userData);
+                        fetchUserDataInBackground();
+                    } catch (e) {
+                        await fetchAndCacheUserData();
+                    }
+                } else {
+                    await fetchAndCacheUserData();
+                }
+            } catch (error) {
+                console.error('Token decode failed:', error);
+                setLoggedOutState();
+            }
+        }
+
+        async function fetchAndCacheUserData() {
+            try {
+                const response = await fetch(`${api_url}/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                    setLoggedInState(data.user);
+                } else {
+                    setLoggedOutState();
+                }
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+                setLoggedOutState();
+            }
+        }
+
+        async function fetchUserDataInBackground() {
+            try {
+                const response = await fetch(`${api_url}/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                    // Update UI if needed
+                    currentUser = data.user;
+                    updateUserInfoDisplay(data.user);
+                    updateUserUIForPlan(data.user.isPremium, data.user.premiumExpiration);
+                }
+            } catch (error) {
+                // Silent fail for background refresh
+                console.log('Background refresh failed:', error);
+            }
+        }
+
+
+        function initGoogleSignIn() {
+            if (window.google) {
+                google.accounts.id.initialize({
+                    client_id: '269620795252-e4b4g9prqs48179o1q04bhrdjsf5124u.apps.googleusercontent.com',
+                    callback: handleGoogleCallback
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById('google-login-btn'),
+                    { 
+                        theme: 'filled_black', 
+                        size: 'large',
+                        width: '100%',
+                        text: 'continue_with'
+                    }
+                );
+
+                google.accounts.id.renderButton(
+                    document.getElementById('google-register-btn'),
+                    { 
+                        theme: 'filled_black', 
+                        size: 'large',
+                        width: '100%',
+                        text: 'signup_with'
+                    }
+                );
+            } else {
+                setTimeout(initGoogleSignIn, 100);
+            }
+        }
+
+        async function handleGoogleCallback(response) {
+            try {
+                showModal('Processing Google login...', 'loading');
+
+                const res = await fetch(`${api_url}/auth/google-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        credential: response.credential
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('cachedUserData', JSON.stringify(data.user));
+                    setLoggedInState(data.user);
+                    showModal('Google login successful!', 'success');
+                    setActiveSection('home');
+                } else {
+                    throw new Error(data.error || 'Google login failed');
+                }
+            } catch (error) {
+                showModal(`Google Login Error: ${error.message}`, 'error');
+                setLoggedOutState();
+            }
+        }
+
+        window.onload = async () => {
+            resetTerminalUI();
+            
+            if (authToken) {
+                await checkAuthAndInitialize();
+                setActiveSection(window.location.hash.substring(1) || 'home');
+            } else {
+                setLoggedOutState();
+                if (getStartedSection?.classList.contains('active')) {
+                    loadLandingAnnouncements();
+                }
+            }
+
+            validateForm();
+            ['urls', 'amounts', 'intervals'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', validateForm);
+                    input.addEventListener('change', validateForm);
+                }
+            });
+            lucide.createIcons();
+            lucide.createIcons({
+                nodes: Array.from(document.querySelectorAll('#terminal-section-container .terminal-header i'))
+            });
+
+            initGoogleSignIn();
+        };
+
+        function resetUI() {
+            document.getElementById('submit-button').style.display = 'inline-flex';
+            document.getElementById('stop-button').style.display = 'none';
+            document.getElementById('share-boost-form').style.display = 'block';
+            if (terminalOutput) {
+                terminalOutput.innerHTML = '';
+            }
+            document.getElementById('terminal-section-container').style.display = 'none';
+        }
+
+        async function checkBackgroundTaskStatus() {
+            try {
+                const response = await fetch('/api/share-status', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.hasActiveTask && data.taskStatus === 'running') {
+                        appendToTerminal(`<span class="info"><span class="prompt">></span> Found running background task</span>`);
+                        appendToTerminal(`<span class="info"><span class="prompt">></span> Current progress: ${data.count}/${data.target} shares</span>`);
+
+                        if (data.count < data.target) {
+                            document.getElementById('submit-button').style.display = 'none';
+                            document.getElementById('stop-button').style.display = 'inline-flex';
+                            document.getElementById('share-boost-form').style.display = 'none';
+                            document.getElementById('terminal-section-container').style.display = 'block';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('No background task found or error checking status');
+            }
+        }
+
+
+        saveCookieBtn.addEventListener('click', async () => {
+            if (!authToken) {
+                showModal('Please login first.', 'error');
+                return;
+            }
+
+            const cookie = cookieInput.value.trim();
+            if (!cookie) {
+                showModal('Please enter a cookie first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${api_url}/cookies/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ cookie })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showModal('Cookie saved successfully!', 'success');
+                } else {
+                    showModal(data.error || 'Failed to save cookie.', 'error');
+                }
+            } catch (error) {
+                console.error('Save cookie error:', error);
+                showModal('Network error. Please try again.', 'error');
+            }
+        });
+
+        loadCookieBtn.addEventListener('click', async () => {
+            if (!authToken) {
+                showModal('Please login first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${api_url}/cookies/get`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    cookieInput.value = data.cookie;
+                    showModal('Cookie loaded successfully!', 'success');
+                } else {
+                    showModal(data.message || 'No saved cookie found.', 'info');
+                }
+            } catch (error) {
+                console.error('Load cookie error:', error);
+                showModal('Network error. Please try again.', 'error');
+            }
+        });
+
+        deleteCookieBtn.addEventListener('click', async () => {
+            if (!authToken) {
+                showModal('Please login first.', 'error');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete your saved cookie?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${api_url}/cookies/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showModal('Cookie deleted successfully!', 'success');
+                } else {
+                    showModal(data.error || 'Failed to delete cookie.', 'error');
+                }
+            } catch (error) {
+                console.error('Delete cookie error:', error);
+                showModal('Network error. Please try again.', 'error');
+            }
+        });
+
+        getStartedBtn?.addEventListener('click', showLoginPage);
+        headerLoginBtn?.addEventListener('click', showLoginPage);
+        headerSignupBtn?.addEventListener('click', showRegisterPage);
+        backToLandingBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            sGetStarted();
+        });
+        backToLandingFromRegisterBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            sGetStarted();
+        });
+    </script>
+</body>
+
+</html>

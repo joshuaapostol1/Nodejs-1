@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Management - Share Boost</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" href="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" type="image/png">
+    <meta name="theme-color" content="#1E1A34">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#8B5CF6',
+                        'primary-darker': '#7C3AED',
+                        'text-main': '#E5E7EB',
+                        'text-muted': '#9CA3AF',
+                        'bg-container': '#111827',
+                        'bg-card': 'rgba(55, 65, 81, 0.7)',
+                        'border-color': 'rgba(139, 92, 246, 0.15)',
+                        'input-bg': 'rgba(55, 65, 81, 0.5)',
+                        'input-border': 'rgba(139, 92, 246, 0.3)',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: theme('colors.bg-container');
+            color: theme('colors.text-main');
+        }
+    </style>
+</head>
+<body class="bg-bg-container text-text-main">
+    <div class="min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <header class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <a href="/" class="text-text-muted hover:text-primary">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </a>
+                        <h1 class="text-2xl font-bold">API Key Management</h1>
+                    </div>
+                </div>
+            </header>
+
+            <div class="space-y-6">
+                <div class="bg-bg-card p-6 rounded-lg border border-border-color">
+                    <h2 class="text-xl font-semibold mb-4">Your API Key</h2>
+                    <div id="api-key-display" class="mb-4">
+                        <div class="flex items-center gap-2 bg-input-bg p-4 rounded-lg border border-input-border">
+                            <code id="api-key-value" class="flex-1 font-mono text-sm break-all">Loading...</code>
+                            <button id="copy-key-btn" class="p-2 hover:bg-primary/20 rounded transition-colors" title="Copy API Key">
+                                <i data-lucide="copy" class="w-5 h-5 text-primary"></i>
+                            </button>
+                        </div>
+                        <p id="api-key-date" class="text-xs text-text-muted mt-2"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="generate-key-btn" class="px-6 py-2 bg-primary hover:bg-primary-darker text-white rounded-lg font-semibold transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                            Generate New Key
+                        </button>
+                        <button id="revoke-key-btn" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">
+                            <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i>
+                            Revoke Key
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-bg-card p-6 rounded-lg border border-border-color">
+                    <h2 class="text-xl font-semibold mb-4">How to Use API Key</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="font-semibold mb-2">Endpoint:</h3>
+                            <code class="block bg-input-bg p-3 rounded-lg text-sm">POST /api/v1/share</code>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Authentication:</h3>
+                            <p class="text-text-muted text-sm mb-2">Include your API key in the request header:</p>
+                            <code class="block bg-input-bg p-3 rounded-lg text-sm">X-API-Key: your_api_key_here</code>
+                            <p class="text-text-muted text-sm mt-2">Or as query parameter:</p>
+                            <code class="block bg-input-bg p-3 rounded-lg text-sm">?apikey=your_api_key_here</code>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Request Body (JSON):</h3>
+                            <pre class="bg-input-bg p-3 rounded-lg text-sm overflow-x-auto"><code>{
+  "cookie": "your_facebook_cookie_or_appstate",
+  "url": "https://www.facebook.com/post_url",
+  "amount": 100,
+  "interval": 10
+}</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Example cURL Request:</h3>
+                            <pre class="bg-input-bg p-3 rounded-lg text-sm overflow-x-auto"><code id="curl-example">curl -X POST https://yourapp.replit.app/api/v1/share \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key_here" \
+  -d '{
+    "cookie": "your_cookie",
+    "url": "https://www.facebook.com/...",
+    "amount": 100,
+    "interval": 10
+  }'</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Python Example:</h3>
+                            <pre class="bg-input-bg p-3 rounded-lg text-sm overflow-x-auto"><code id="python-example">import requests
+
+api_key = "your_api_key_here"
+url = "https://yourapp.replit.app/api/v1/share"
+
+headers = {
+    "Content-Type": "application/json",
+    "X-API-Key": api_key
+}
+
+data = {
+    "cookie": "your_facebook_cookie_or_appstate",
+    "url": "https://www.facebook.com/post_url",
+    "amount": 100,
+    "interval": 10
+}
+
+response = requests.post(url, json=data, headers=headers)
+print(response.json())</code></pre>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Node.js Example:</h3>
+                            <pre class="bg-input-bg p-3 rounded-lg text-sm overflow-x-auto"><code id="nodejs-example">const axios = require('axios');
+
+const apiKey = 'your_api_key_here';
+const url = 'https://yourapp.replit.app/api/v1/share';
+
+const data = {
+  cookie: 'your_facebook_cookie_or_appstate',
+  url: 'https://www.facebook.com/post_url',
+  amount: 100,
+  interval: 10
+};
+
+axios.post(url, data, {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': apiKey
+  }
+})
+.then(response => {
+  console.log(response.data);
+})
+.catch(error => {
+  console.error('Error:', error.response?.data || error.message);
+});</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <h3 class="font-semibold text-amber-300 mb-1">Important Security Notice</h3>
+                            <ul class="text-sm text-amber-100 space-y-1">
+                                <li>• Keep your API key secret and never share it publicly</li>
+                                <li>• Generating a new key will revoke your previous key immediately</li>
+                                <li>• Your API key has the same permissions as your account</li>
+                                <li>• Free accounts are limited to 500 shares per session</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            window.location.href = '/';
+        }
+
+        const apiKeyValue = document.getElementById('api-key-value');
+        const apiKeyDate = document.getElementById('api-key-date');
+        const generateKeyBtn = document.getElementById('generate-key-btn');
+        const revokeKeyBtn = document.getElementById('revoke-key-btn');
+        const copyKeyBtn = document.getElementById('copy-key-btn');
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg ${isError ? 'bg-red-600' : 'bg-green-600'} text-white`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function updateExamples(apiKey) {
+            const appUrl = window.location.origin;
+            
+            const curlExample = document.getElementById('curl-example');
+            curlExample.textContent = `curl -X POST ${appUrl}/api/v1/share \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: ${apiKey}" \\
+  -d '{
+    "cookie": "your_cookie",
+    "url": "https://www.facebook.com/...",
+    "amount": 100,
+    "interval": 10
+  }'`;
+            
+            const pythonExample = document.getElementById('python-example');
+            pythonExample.textContent = `import requests
+
+api_key = "${apiKey}"
+url = "${appUrl}/api/v1/share"
+
+headers = {
+    "Content-Type": "application/json",
+    "X-API-Key": api_key
+}
+
+data = {
+    "cookie": "your_facebook_cookie_or_appstate",
+    "url": "https://www.facebook.com/post_url",
+    "amount": 100,
+    "interval": 10
+}
+
+response = requests.post(url, json=data, headers=headers)
+print(response.json())`;
+            
+            const nodejsExample = document.getElementById('nodejs-example');
+            nodejsExample.textContent = `const axios = require('axios');
+
+const apiKey = '${apiKey}';
+const url = '${appUrl}/api/v1/share';
+
+const data = {
+  cookie: 'your_facebook_cookie_or_appstate',
+  url: 'https://www.facebook.com/post_url',
+  amount: 100,
+  interval: 10
+};
+
+axios.post(url, data, {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': apiKey
+  }
+})
+.then(response => {
+  console.log(response.data);
+})
+.catch(error => {
+  console.error('Error:', error.response?.data || error.message);
+});`;
+        }
+
+        async function loadCurrentKey() {
+            try {
+                const response = await fetch('/api/apikey/current', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    apiKeyValue.textContent = data.apiKey;
+                    apiKeyDate.textContent = `Created: ${new Date(data.createdAt).toLocaleString()}`;
+                    updateExamples(data.apiKey);
+                } else if (response.status === 404) {
+                    apiKeyValue.textContent = 'Generating your first API key...';
+                    apiKeyDate.textContent = 'Please wait...';
+                    
+                    const generateResponse = await fetch('/api/apikey/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    if (generateResponse.ok) {
+                        const genData = await generateResponse.json();
+                        apiKeyValue.textContent = genData.apiKey;
+                        apiKeyDate.textContent = `Created: ${new Date().toLocaleString()}`;
+                        updateExamples(genData.apiKey);
+                        showToast('Your first API key has been generated!');
+                    } else {
+                        throw new Error('Failed to generate initial API key');
+                    }
+                } else {
+                    throw new Error('Failed to load API key');
+                }
+            } catch (error) {
+                apiKeyValue.textContent = 'Error loading API key';
+                apiKeyDate.textContent = '';
+                showToast('Failed to load API key', true);
+                updateExamples('your_api_key_here');
+            }
+        }
+
+        generateKeyBtn.addEventListener('click', async () => {
+            if (!confirm('Generate a new API key? This will revoke your current key.')) return;
+
+            generateKeyBtn.disabled = true;
+            generateKeyBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-2 animate-spin"></i>Generating...';
+            lucide.createIcons();
+
+            try {
+                const response = await fetch('/api/apikey/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showToast('New API key generated successfully!');
+                    apiKeyValue.textContent = data.apiKey;
+                    apiKeyDate.textContent = `Created: ${new Date().toLocaleString()}`;
+                    updateExamples(data.apiKey);
+                } else {
+                    throw new Error(data.error || 'Failed to generate key');
+                }
+            } catch (error) {
+                showToast(error.message, true);
+            } finally {
+                generateKeyBtn.disabled = false;
+                generateKeyBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>Generate New Key';
+                lucide.createIcons();
+            }
+        });
+
+        revokeKeyBtn.addEventListener('click', async () => {
+            if (!confirm('Revoke your API key? You will need to generate a new one.')) return;
+
+            revokeKeyBtn.disabled = true;
+            revokeKeyBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-2 animate-spin"></i>Revoking...';
+            lucide.createIcons();
+
+            try {
+                const response = await fetch('/api/apikey/revoke', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showToast('API key revoked successfully');
+                    apiKeyValue.textContent = 'No API key generated yet';
+                    apiKeyDate.textContent = 'Click "Generate New Key" to create one';
+                    updateExamples('your_api_key_here');
+                } else {
+                    throw new Error(data.error || 'Failed to revoke key');
+                }
+            } catch (error) {
+                showToast(error.message, true);
+            } finally {
+                revokeKeyBtn.disabled = false;
+                revokeKeyBtn.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i>Revoke Key';
+                lucide.createIcons();
+            }
+        });
+
+        copyKeyBtn.addEventListener('click', () => {
+            const keyText = apiKeyValue.textContent;
+            if (keyText && keyText !== 'Loading...' && keyText !== 'No API key generated yet') {
+                navigator.clipboard.writeText(keyText).then(() => {
+                    showToast('API key copied to clipboard!');
+                });
+            }
+        });
+
+        loadCurrentKey();
+    </script>
+</body>
+</html>

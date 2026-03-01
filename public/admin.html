@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Share Boost - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" href="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" type="image/jpeg">
+    <meta name="theme-color" content="#0F0F23">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#6366F1',
+                        'primary-light': '#818CF8',
+                        'primary-dark': '#4F46E5',
+                        secondary: '#06B6D4',
+                        'secondary-light': '#22D3EE',
+                        accent: '#F59E0B',
+                        'accent-light': '#FCD34D',
+                        background: '#0F0F23',
+                        'background-secondary': '#1A1A2E',
+                        'card-bg': '#16213E',
+                        'card-bg-hover': '#1E2749',
+                        'input-bg': '#0E1428',
+                        'text-main': '#F1F5F9',
+                        'text-secondary': '#CBD5E1',
+                        'text-muted': '#94A3B8',
+                        'border-light': '#334155',
+                        'border-accent': '#475569',
+                        error: '#EF4444',
+                        'error-light': '#F87171',
+                        success: '#10B981',
+                        'success-light': '#34D399',
+                        warning: '#F59E0B',
+                        'warning-light': '#FCD34D',
+                        'nav-bg': 'rgba(22, 33, 62, 0.95)',
+                        'nav-border': 'rgba(99, 102, 241, 0.2)',
+                        'table-header': 'rgba(14, 20, 40, 0.9)',
+                        'table-row-hover': 'rgba(99, 102, 241, 0.08)',
+                        'gradient-start': '#6366F1',
+                        'gradient-end': '#06B6D4',
+                    },
+                    boxShadow: {
+                        'primary-glow': '0 0 30px rgba(99, 102, 241, 0.4)',
+                        'secondary-glow': '0 0 20px rgba(6, 182, 212, 0.3)',
+                        'card': '0 10px 40px rgba(0, 0, 0, 0.6)',
+                        'card-hover': '0 20px 60px rgba(0, 0, 0, 0.8)',
+                        'header': '0 4px 20px rgba(0, 0, 0, 0.7)',
+                        'button': '0 4px 15px rgba(99, 102, 241, 0.25)',
+                        'button-hover': '0 8px 25px rgba(99, 102, 241, 0.4)',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite alternate',
+                        'float': 'float 3s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(10px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        },
+                        slideUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(20px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        },
+                        pulseGlow: {
+                            '0%': {
+                                boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)'
+                            },
+                            '100%': {
+                                boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': {
+                                transform: 'translateY(0px)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-10px)'
+                            }
+                        },
+                        shimmer: {
+                            '0%': {
+                                transform: 'translateX(-100%)'
+                            },
+                            '100%': {
+                                transform: 'translateX(100%)'
+                            }
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --secondary-color: #06B6D4;
+            --background-color: #0F0F23;
+            --card-background-color: #16213E;
+            --input-background-color: #0E1428;
+            --text-color: #F1F5F9;
+            --text-muted-color: #94A3B8;
+            --border-color-light: #334155;
+            --error-color: #EF4444;
+            --success-color: #10B981;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background: linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            padding: 1rem;
+            padding-top: calc(1rem + 80px + 1.5rem);
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 15, 35, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4F46E5, #0891B2);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus,
+        button:focus-visible,
+        a:focus-visible {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3) !important;
+            border-color: var(--primary-color) !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+
+        .rotating-border-container {
+            position: relative;
+            display: block;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px auto;
+            padding: 2px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            transition: all 0.4s ease;
+        }
+
+        .rotating-border-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+        }
+
+        .rotating-border-container::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: conic-gradient(from 0deg,
+                    var(--primary-color),
+                    var(--secondary-color),
+                    #F59E0B,
+                    var(--primary-color));
+            transform: translate(-50%, -50%);
+            animation: rotating 6s linear infinite;
+            z-index: 1;
+            opacity: 0.8;
+        }
+
+        .rotating-border-container>.inner-content {
+            position: relative;
+            z-index: 2;
+            display: block;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(22, 33, 62, 0.95), rgba(26, 26, 46, 0.9));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            padding: 30px;
+            text-align: left;
+        }
+
+        @keyframes rotating {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .admin-section {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .admin-section.active {
+            display: block;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Toast */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(52, 211, 153, 0.9));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            z-index: 1100;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-size: 0.875rem;
+            font-weight: 500;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #toast.error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(248, 113, 113, 0.9));
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translate(-50%, -10px) scale(1.02);
+        }
+
+        .status-badge-admin {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            line-height: 1.25rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border-width: 1px;
+            vertical-align: middle;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge-admin:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge-admin-premium {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(129, 140, 248, 0.1));
+            border-color: rgba(99, 102, 241, 0.6);
+            color: #818CF8;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .status-badge-admin-free {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.15), rgba(156, 163, 175, 0.1));
+            border-color: rgba(107, 114, 128, 0.4);
+            color: #9CA3AF;
+        }
+
+        .status-badge-admin-active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.1));
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #34D399;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-badge-admin-suspended {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(252, 211, 77, 0.1));
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #FCD34D;
+        }
+
+        .table-action-button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: 1px solid transparent;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .table-action-button:active {
+            transform: translateY(0);
+        }
+
+        .table-action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #admin-login-form input[type="text"],
+        #admin-login-form input[type="password"],
+        #admin-user-search,
+        input[type="text"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(51, 65, 85, 0.5);
+            border-radius: 12px;
+            font-size: 0.95em;
+            background: linear-gradient(135deg, rgba(14, 20, 40, 0.9), rgba(22, 33, 62, 0.8));
+            color: var(--text-color) !important;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Specific styling for announcement form inputs */
+        #announcement-form input,
+        #announcement-form textarea,
+        #announcement-form select {
+            background: linear-gradient(135deg, rgba(14, 20, 40, 0.9), rgba(22, 33, 62, 0.8)) !important;
+            color: var(--text-color) !important;
+            border: 2px solid rgba(99, 102, 241, 0.3) !important;
+        }
+
+        #announcement-form input::placeholder,
+        #announcement-form textarea::placeholder {
+            color: rgba(148, 163, 184, 0.7) !important;
+        }
+
+        input:hover,
+        textarea:hover,
+        select:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, rgba(14, 20, 40, 0.9), rgba(22, 33, 62, 0.7));
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.98);
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button[type="submit"]:hover::before {
+            left: 100%;
+        }
+
+        .admin-nav-button {
+            border-bottom-width: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 12px 20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-nav-button:hover::before {
+            opacity: 1;
+        }
+
+        .admin-nav-button.active-nav {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.05));
+            box-shadow: 0 -2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-nav-button:not(.active-nav) {
+            color: var(--text-muted-color);
+            border-color: transparent;
+        }
+
+        .admin-nav-button:hover:not(.active-nav) {
+            color: var(--text-color);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .admin-header-wrapper {
+            position: sticky;
+            top: 1rem;
+            z-index: 50;
+            margin-bottom: 2rem;
+            margin-top: 0;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        }
+
+        .admin-header-inner-content {
+            padding: 1.5rem 2rem;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(22, 33, 62, 0.95), rgba(26, 26, 46, 0.9));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(51, 65, 85, 0.3);
+            background: linear-gradient(135deg, rgba(14, 20, 40, 0.8), rgba(22, 33, 62, 0.6));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        table thead {
+            background: linear-gradient(135deg, rgba(14, 20, 40, 0.9), rgba(22, 33, 62, 0.8));
+        }
+
+        table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+        }
+
+        table td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-color);
+            border-top: 1px solid rgba(51, 65, 85, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.05));
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-container img {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3));
+        }
+
+        .logo-container:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.6));
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        #announcement-form {
+            background: linear-gradient(135deg, rgba(22, 33, 62, 0.8), rgba(26, 26, 46, 0.6));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .bg-action-green {
+            background: linear-gradient(135deg, #059669, #10B981);
+        }
+
+        .bg-action-red {
+            background: linear-gradient(135deg, #DC2626, #EF4444);
+        }
+
+        .bg-action-yellow {
+            background: linear-gradient(135deg, #D97706, #F59E0B);
+        }
+
+        .bg-action-blue {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+        }
+
+        .bg-action-orange {
+            background: linear-gradient(135deg, #EA580C, #F97316);
+        }
+
+        .hover\:bg-green-700:hover {
+            background: linear-gradient(135deg, #047857, #059669);
+        }
+
+        .hover\:bg-red-700:hover {
+            background: linear-gradient(135deg, #B91C1C, #DC2626);
+        }
+
+        .hover\:bg-yellow-600:hover {
+            background: linear-gradient(135deg, #CA8A04, #D97706);
+        }
+
+        .hover\:bg-blue-600:hover {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+        }
+
+        .hover\:bg-orange-600:hover {
+            background: linear-gradient(135deg, #EA580C, #F97316);
+        }
+
+        .hover\:bg-gray-700:hover {
+            background: linear-gradient(135deg, #374151, #4B5563);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: calc(1rem + 60px + 1rem);
+            }
+
+            .admin-header-inner-content {
+                padding: 1rem 1.5rem;
+            }
+
+            .rotating-border-container>.inner-content {
+                padding: 20px;
+            }
+
+            table th,
+            table td {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-background text-text-main">
+    <div class="max-w-7xl mx-auto">
+        <div class="admin-header-wrapper rotating-border-container">
+            <div class="inner-content admin-header-inner-content">
+                <header class="admin-header-content-actual">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="logo-container">
+                                <img src="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" alt="Logo" class="w-10 h-10 rounded-xl">
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Admin Dashboard</h1>
+                            </div>
+                        </div>
+                        <button id="logout-button-admin" title="Logout Admin" class="text-text-muted hover:text-primary p-2 bg-primary/10 rounded-xl hover:bg-primary/20 transition-all duration-300 hidden group">
+                            <i data-lucide="log-out" class="w-5 h-5 text-primary group-hover:scale-110 transition-transform"></i>
+                        </button>
+                    </div>
+                </header>
+            </div>
+        </div>
+        <div id="admin-login-section" class="rotating-border-container max-w-md mx-auto">
+            <div class="inner-content text-center">
+                <div class="mb-6">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-text-main mb-2">Admin Access</h2>
+                    <p class="text-text-muted">Secure login to dashboard</p>
+                </div>
+                <form id="admin-login-form" class="space-y-6">
+                    <div class="text-left">
+                        <label for="admin-username" class="text-sm font-semibold text-text-secondary mb-2 block">Username</label>
+                        <input type="text" id="admin-username" value="admin" required class="transition-all duration-300">
+                    </div>
+                    <div class="text-left">
+                        <label for="admin-password" class="text-sm font-semibold text-text-secondary mb-2 block">Password</label>
+                        <input type="password" id="admin-password" value="" placeholder="Enter admin password" required class="transition-all duration-300">
+                    </div>
+                    <button type="submit" class="w-full flex items-center justify-center gap-3 text-lg py-3 relative overflow-hidden">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div id="admin-main-content" Here's the complete modified code file: ```html class="hidden rotating-border-container">
+            <div class="inner-content">
+                <div class="mb-8 border-b border-border-light">
+                    <nav class="flex space-x-1 -mb-px overflow-x-auto" aria-label="Tabs">
+                        <button data-section="users" class="admin-nav-button whitespace-nowrap font-semibold text-sm active-nav">
+                            <i data-lucide="users" class="w-4 h-4 mr-2 inline"></i>Users
+                        </button>
+                        <button data-section="requests" class="admin-nav-button whitespace-nowrap font-semibold text-sm">
+                            <i data-lucide="user-plus" class="w-4 h-4 mr-2 inline"></i>Requests
+                        </button>
+                        <button data-section="ips" class="admin-nav-button whitespace-nowrap font-semibold text-sm">
+                            <i data-lucide="globe" class="w-4 h-4 mr-2 inline"></i>IP Monitor
+                        </button>
+                        <button data-section="announcements" class="admin-nav-button whitespace-nowrap font-semibold text-sm">
+                            <i data-lucide="megaphone" class="w-4 h-4 mr-2 inline"></i>Announcements
+                        </button>
+                    </nav>
+                </div>
+                <div id="admin-users-section" class="admin-section active">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-text-main mb-1">User Management</h2>
+                            <p class="text-text-muted">Manage user accounts and permissions</p>
+                        </div>
+                        <div class="relative w-full max-w-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="w-4 h-4 text-text-muted"></i>
+                            </div>
+                            <input type="text" id="admin-user-search" placeholder="Search users..." class="pl-10 pr-4 py-3 w-full rounded-xl border-2 bg-input-bg border-border-light text-text-main focus:border-primary text-sm transition-all duration-300">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>Username</th>
+                                    <th><i data-lucide="crown" class="w-4 h-4 inline mr-2"></i>Premium</th>
+                                    <th><i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>Expiration</th>
+                                    <th><i data-lucide="activity" class="w-4 h-4 inline mr-2"></i>Status</th>
+                                    <th><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>Created</th>
+                                    <th class="text-center"><i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="admin-requests-section" class="admin-section">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-text-main mb-1">Premium Requests</h2>
+                        <p class="text-text-muted">Review and approve user premium requests</p>
+                    </div>
+                    <div class="table-container">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>Username</th>
+                                    <th><i data-lucide="package" class="w-4 h-4 inline mr-2"></i>Plan</th>
+                                    <th><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>Requested</th>
+                                    <th class="text-center"><i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="request-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="admin-ips-section" class="admin-section">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-text-main mb-1">IP Registration Monitor</h2>
+                        <p class="text-text-muted">Track and manage IP registration limits</p>
+                    </div>
+                    <div class="table-container">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th><i data-lucide="globe" class="w-4 h-4 inline mr-2"></i>IP Address</th>
+                                    <th class="text-center"><i data-lucide="hash" class="w-4 h-4 inline mr-2"></i>Count</th>
+                                    <th><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>Last Registration</th>
+                                    <th class="text-center"><i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ip-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="admin-announcements-section" class="admin-section">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-text-main mb-1">Announcements</h2>
+                            <p class="text-text-muted">Create and manage system announcements</p>
+                        </div>
+                        <button id="create-announcement-btn" class="table-action-button bg-action-green hover:bg-green-700 text-white px-6 py-3 text-sm flex-shrink-0 rounded-xl shadow-button hover:shadow-button-hover">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Create Announcement
+                        </button>
+                    </div>
+
+                    <div id="announcement-form" class="hidden mb-6">
+                        <h3 class="text-xl font-semibold text-text-main mb-4 flex items-center">
+                            <i data-lucide="edit" class="w-5 h-5 mr-2 text-primary"></i>
+                            Create New Announcement
+                        </h3>
+                        <form id="create-announcement-form">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="announcement-title" class="block text-sm font-semibold text-text-secondary mb-2">Title</label>
+                                    <input type="text" id="announcement-title" required placeholder="Enter announcement title..." class="transition-all duration-300">
+                                </div>
+                                <div>
+                                    <label for="announcement-type" class="block text-sm font-semibold text-text-secondary mb-2">Type</label>
+                                    <select id="announcement-type" class="transition-all duration-300">
+                                        <option value="info">Info</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="success">Success</option>
+                                        <option value="error">Error</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label for="announcement-content" class="block text-sm font-semibold text-text-secondary mb-2">Content</label>
+                                <textarea id="announcement-content" rows="4" required placeholder="Enter announcement content..." class="resize-none transition-all duration-300"></textarea>
+                            </div>
+                            <div class="flex gap-3 mt-6">
+                                <button type="submit" id="submit-announcement-btn" class="table-action-button bg-action-green hover:bg-green-700 text-white px-6 py-3 text-sm rounded-xl shadow-button hover:shadow-button-hover">
+                                    <i data-lucide="check" class="w-4 h-4 mr-2"></i>Create
+                                </button>
+                                <button type="button" id="cancel-announcement-btn" class="table-action-button bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 text-sm rounded-xl">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>Title</th>
+                                    <th><i data-lucide="tag" class="w-4 h-4 inline mr-2"></i>Type</th>
+                                    <th><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>Created By</th>
+                                    <th><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>Created</th>
+                                    <th class="text-center"><i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="announcements-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast">
+        <div class="flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Toast Message</span>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API_BASE_URL_ADMIN = '/api';
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminLoginSection = document.getElementById('admin-login-section');
+        const adminMainContent = document.getElementById('admin-main-content');
+        const userListBody = document.getElementById('user-list-body');
+        const ipListBody = document.getElementById('ip-list-body');
+        const requestListBody = document.getElementById('request-list-body');
+        const announcementsListBody = document.getElementById('announcements-list-body');
+        const createAnnouncementBtn = document.getElementById('create-announcement-btn');
+        const announcementForm = document.getElementById('announcement-form');
+        const createAnnouncementForm = document.getElementById('create-announcement-form');
+        const cancelAnnouncementBtn = document.getElementById('cancel-announcement-btn');
+        const adminNavButtons = document.querySelectorAll('.admin-nav-button');
+        const adminSections = document.querySelectorAll('.admin-section');
+        const logoutButtonAdmin = document.getElementById('logout-button-admin');
+        const toastElement = document.getElementById('toast');
+        const adminUserSearchInput = document.getElementById('admin-user-search');
+        let adminAuthToken = localStorage.getItem('adminAuthToken');
+        let allUsersCache = [];
+
+        function showToast(message, isError = false) {
+            if (!toastElement) return;
+            const iconElement = toastElement.querySelector('i');
+            const textElement = toastElement.querySelector('span');
+
+            if (textElement) textElement.textContent = message;
+            if (iconElement) {
+                iconElement.setAttribute('data-lucide', isError ? 'x-circle' : 'check-circle');
+                lucide.createIcons();
+            }
+
+            toastElement.className = isError ? 'error show' : 'show';
+            setTimeout(() => {
+                toastElement.classList.remove('show');
+            }, 4000);
+        }
+
+        function setAdminLoggedInState() {
+            adminAuthToken = localStorage.getItem('adminAuthToken');
+            if (adminLoginSection) adminLoginSection.style.display = 'none';
+            if (adminMainContent) adminMainContent.style.display = 'block';
+            if (logoutButtonAdmin) logoutButtonAdmin.classList.remove('hidden');
+            loadAdminData();
+            setActiveAdminSection('users');
+        }
+
+        function setAdminLoggedOutState() {
+            adminAuthToken = null;
+            localStorage.removeItem('adminAuthToken');
+            if (adminLoginSection) adminLoginSection.style.display = 'block';
+            if (adminMainContent) adminMainContent.style.display = 'none';
+            if (logoutButtonAdmin) logoutButtonAdmin.classList.add('hidden');
+        }
+        async function makeAdminApiCall(endpoint, method = 'GET', body = null) {
+            if (!adminAuthToken) {
+                showToast('Admin authentication missing.', true);
+                setAdminLoggedOutState();
+                throw new Error('Not authenticated as admin');
+            }
+            try {
+                const headers = {
+                    'Authorization': `Bearer ${adminAuthToken}`
+                };
+                const options = {
+                    method,
+                    headers
+                };
+                if (body) {
+                    options.body = JSON.stringify(body);
+                    headers['Content-Type'] = 'application/json';
+                }
+                const response = await fetch(`${API_BASE_URL_ADMIN}/admin${endpoint}`, options);
+                if (response.status === 401 || response.status === 403) {
+                    setAdminLoggedOutState();
+                    throw new Error('Unauthorized or Forbidden');
+                }
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({
+                        error: 'Failed to parse error'
+                    }));
+                    throw new Error(errorData.error || `HTTP Error ${response.status}`);
+                }
+                if (response.status === 204 || response.headers.get('content-length') === '0') {
+                    return null;
+                }
+                return await response.json();
+            } catch (error) {
+                showToast(`API Error: ${error.message}`, true);
+                throw error;
+            }
+        }
+
+        function formatAdminDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                return new Date(dateString).toLocaleString('en-US', {
+                    dateStyle: 'short',
+                    timeStyle: 'short'
+                });
+            } catch {
+                return 'Invalid Date';
+            }
+        }
+        async function loadAdminData() {
+            await loadUsers();
+            await loadRequests();
+            await loadIps();
+            await loadAnnouncements();
+        }
+
+        function renderUsers(usersToRender) {
+            if (!userListBody) return;
+
+            const fragment = document.createDocumentFragment();
+
+            if (usersToRender && usersToRender.length > 0) {
+                usersToRender.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.classList.add('hover:bg-table-row-hover', 'transition-all', 'duration-300');
+                    row.dataset.username = user.username.toLowerCase();
+                    const isPremium = !!user.isPremium;
+                    const isAdmin = user.username === 'admin';
+                    const premiumBadgeClass = isPremium ? 'status-badge-admin-premium' : 'status-badge-admin-free';
+                    const premiumIcon = isPremium ? '<i data-lucide="star" class="w-3 h-3 inline-block mr-1"></i>' : '<i data-lucide="user" class="w-3 h-3 inline-block mr-1"></i>';
+                    const premiumText = isPremium ? 'Premium' : 'Free';
+                    const expiryText = isPremium && user.premiumExpiration ? formatAdminDate(user.premiumExpiration) : (isPremium ? 'Permanent' : 'N/A');
+                    const status = user.status || 'active';
+                    const statusBadgeClass = status === 'active' ? 'status-badge-admin-active' : 'status-badge-admin-suspended';
+                    const statusIcon = status === 'active' ? '<i data-lucide="check-circle" class="w-3 h-3 inline-block mr-1"></i>' : '<i data-lucide="alert-octagon" class="w-3 h-3 inline-block mr-1"></i>';
+                    row.innerHTML = `<td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xs font-bold">${user.username.charAt(0).toUpperCase()}</div><div><div class="font-semibold">${user.username}${isAdmin?' <span class="text-xs text-primary font-bold">(ADMIN)</span>':''}</div></div></div></td><td><span class="status-badge-admin ${premiumBadgeClass}">${premiumIcon}${premiumText}</span></td><td class="text-text-muted font-mono text-xs">${expiryText}</td><td><span class="status-badge-admin ${statusBadgeClass}">${statusIcon}${status.charAt(0).toUpperCase()+status.slice(1)}</span></td><td class="text-text-muted font-mono text-xs">${formatAdminDate(user.createdAt)}</td><td class="text-center"><div class="flex justify-center gap-1"><button data-userid="${user.userId}" data-ispremium="${isPremium}" class="toggle-premium-button table-action-button ${isPremium?'bg-action-yellow hover:bg-yellow-600':'bg-action-green hover:bg-green-700'} text-white" title="${isPremium?'Make Free':'Make Premium (Permanent)'}" ${isAdmin?'disabled':''}><i data-lucide="${isPremium?'arrow-down-circle':'arrow-up-circle'}" class="w-3.5 h-3.5"></i></button><button data-userid="${user.userId}" data-status="${status}" class="toggle-status-button table-action-button ${status==='active'?'bg-action-orange hover:bg-orange-600':'bg-action-blue hover:bg-blue-600'} text-white" title="${status==='active'?'Suspend User':'Activate User'}" ${isAdmin?'disabled':''}><i data-lucide="${status==='active'?'user-x':'user-check'}" class="w-3.5 h-3.5"></i></button><button data-userid="${user.userId}" data-username="${user.username}" class="delete-user-button table-action-button bg-action-red hover:bg-red-700 text-white" title="Delete User" ${isAdmin?'disabled':''}><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div></td>`;
+                    fragment.appendChild(row);
+                });
+
+                userListBody.innerHTML = '';
+                userListBody.appendChild(fragment);
+                attachUserButtonListeners();
+                lucide.createIcons();
+            } else {
+                userListBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><i data-lucide="users" class="w-8 h-8 opacity-50"></i><span>No users found' + (adminUserSearchInput && adminUserSearchInput.value ? ' for "' + adminUserSearchInput.value + '"' : '.') + '</span></div></td></tr>';
+                lucide.createIcons();
+            }
+        }
+        async function loadUsers(searchTerm = '') {
+            if (!userListBody) return;
+            const currentSearchTerm = searchTerm.toLowerCase();
+
+            if (!currentSearchTerm && allUsersCache.length > 0) {
+                renderUsers(allUsersCache);
+                return;
+            }
+            if (currentSearchTerm && allUsersCache.length > 0) {
+                const filteredUsers = allUsersCache.filter(user => user.username.toLowerCase().includes(currentSearchTerm));
+                renderUsers(filteredUsers);
+                return;
+            }
+
+            userListBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><div class="loading-shimmer w-8 h-8 rounded-lg"></div><span>Loading users...</span></div></td></tr>';
+            try {
+                allUsersCache = await makeAdminApiCall('/users');
+                const usersToDisplay = currentSearchTerm ? allUsersCache.filter(user => user.username.toLowerCase().includes(currentSearchTerm)) : allUsersCache;
+                renderUsers(usersToDisplay);
+            } catch (error) {
+                userListBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400"><div class="flex flex-col items-center gap-2"><i data-lucide="alert-circle" class="w-8 h-8"></i><span>Failed to load users: ${error.message}</span></div></td></tr>`;
+                lucide.createIcons();
+            }
+        }
+        adminUserSearchInput?.addEventListener('input', (e) => {
+            loadUsers(e.target.value.trim());
+        });
+
+        function attachUserButtonListeners() {
+            const premiumButtons = userListBody.querySelectorAll('.toggle-premium-button');
+            const statusButtons = userListBody.querySelectorAll('.toggle-status-button');
+            const deleteButtons = userListBody.querySelectorAll('.delete-user-button');
+            premiumButtons.forEach(button => {
+                button.removeEventListener('click', handleTogglePremium);
+                button.addEventListener('click', handleTogglePremium);
+            });
+            statusButtons.forEach(button => {
+                button.removeEventListener('click', handleToggleStatus);
+                button.addEventListener('click', handleToggleStatus);
+            });
+            deleteButtons.forEach(button => {
+                button.removeEventListener('click', handleDeleteUser);
+                button.addEventListener('click', handleDeleteUser);
+            });
+        }
+        async function handleTogglePremium(e) {
+            const targetButton = e.currentTarget;
+            const userId = targetButton.dataset.userid;
+            const currentIsPremium = targetButton.dataset.ispremium === 'true';
+            const makePremium = !currentIsPremium;
+            const actionText = makePremium ? 'Permanently Premium' : 'Free';
+            if (!confirm(`Make user ${actionText}?`)) return;
+            targetButton.disabled = true;
+            const otherBtns = targetButton.closest('td').querySelectorAll('button:not([disabled])');
+            otherBtns.forEach(b => b.disabled = true);
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/users/${userId}/premium`, 'PUT', {
+                    isPremium: makePremium,
+                    expirationDate: null
+                });
+                showToast(`User status updated to ${actionText}!`);
+                allUsersCache = [];
+                await loadUsers(adminUserSearchInput.value.trim());
+            } catch (error) {
+                showToast(`Failed to update premium: ${error.message}`, true);
+            } finally {
+                otherBtns.forEach(b => b.disabled = false);
+                targetButton.innerHTML = `<i data-lucide="${currentIsPremium?'arrow-down-circle':'arrow-up-circle'}" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+                targetButton.disabled = false;
+            }
+        }
+        async function handleToggleStatus(e) {
+            const targetButton = e.currentTarget;
+            const userId = targetButton.dataset.userid;
+            const currentStatus = targetButton.dataset.status;
+            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            const actionText = newStatus === 'active' ? 'Activate' : 'Suspend';
+            if (!confirm(`${actionText} this user?`)) return;
+            targetButton.disabled = true;
+            const otherBtns = targetButton.closest('td').querySelectorAll('button:not([disabled])');
+            otherBtns.forEach(b => b.disabled = true);
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/users/${userId}/status`, 'PUT', {
+                    status: newStatus
+                });
+                showToast(`User ${actionText.toLowerCase()}ed successfully!`);
+                allUsersCache = [];
+                await loadUsers(adminUserSearchInput.value.trim());
+            } catch (error) {
+                showToast(`Failed to ${actionText.toLowerCase()} user: ${error.message}`, true);
+            } finally {
+                otherBtns.forEach(b => b.disabled = false);
+                targetButton.innerHTML = `<i data-lucide="${currentStatus==='active'?'user-x':'user-check'}" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+                targetButton.disabled = false;
+            }
+        }
+        async function handleDeleteUser(e) {
+            const targetButton = e.currentTarget;
+            const userId = targetButton.dataset.userid;
+            const username = targetButton.dataset.username;
+            if (!confirm(`DELETE user '${username}' (ID: ${userId})? This CANNOT BE UNDONE.`)) return;
+            targetButton.disabled = true;
+            const otherBtns = targetButton.closest('td').querySelectorAll('button:not([disabled])');
+            otherBtns.forEach(b => b.disabled = true);
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/users/${userId}`, 'DELETE');
+                showToast(`User '${username}' deleted.`);
+                allUsersCache = [];
+                await loadUsers(adminUserSearchInput.value.trim());
+            } catch (error) {
+                showToast(`Failed to delete '${username}': ${error.message}`, true);
+            } finally {
+                otherBtns.forEach(b => b.disabled = false);
+                targetButton.innerHTML = `<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+                targetButton.disabled = false;
+            }
+        }
+        async function loadIps() {
+            if (!ipListBody) return;
+            ipListBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><div class="loading-shimmer w-8 h-8 rounded-lg"></div><span>Loading IP data...</span></div></td></tr>';
+            try {
+                const ips = await makeAdminApiCall('/ips');
+                ipListBody.innerHTML = '';
+                if (ips && ips.length > 0) {
+                    ips.forEach(ipData => {
+                        const row = document.createElement('tr');
+                        row.classList.add('hover:bg-table-row-hover', 'transition-all', 'duration-300');
+                        const regCount = ipData.registration_count || 0;
+                        const regCountClass = regCount >= 3 ? 'text-red-400 font-bold' : regCount >= 2 ? 'text-yellow-400 font-semibold' : 'text-text-main';
+                        const regCountIcon = regCount >= 3 ? '🚨' : regCount >= 2 ? '⚠️' : '✅';
+                        const lastRegistration = ipData.last_used || ipData.last_registration;
+                        row.innerHTML = `<td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white text-xs"><i data-lucide="globe" class="w-4 h-4"></i></div><span class="font-mono font-semibold">${ipData.ip_address}</span></div></td><td class="text-center"><div class="flex items-center justify-center gap-2"><span class="${regCountClass} text-lg font-bold">${regCount}</span><span class="text-lg">${regCountIcon}</span></div></td><td class="text-text-muted font-mono text-xs">${formatAdminDate(lastRegistration)}</td><td class="text-center"><div class="flex justify-center gap-1"><button data-ip="${ipData.ip_address}" class="reset-ip-button table-action-button bg-action-blue hover:bg-blue-600 text-white" title="Reset Registration Count"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button><button data-ip="${ipData.ip_address}" class="delete-ip-button table-action-button bg-action-red hover:bg-red-700 text-white" title="Delete Registration Records"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div></td>`;
+                        ipListBody.appendChild(row);
+                    });
+                    attachIpButtonListeners();
+                    lucide.createIcons();
+                } else {
+                    ipListBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><i data-lucide="globe" class="w-8 h-8 opacity-50"></i><span>No IP registration data found.</span></div></td></tr>';
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                ipListBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-400"><div class="flex flex-col items-center gap-2"><i data-lucide="alert-circle" class="w-8 h-8"></i><span>Failed to load IP data: ${error.message}</span></div></td></tr>`;
+                lucide.createIcons();
+            }
+        }
+
+        function attachIpButtonListeners() {
+            document.querySelectorAll('.reset-ip-button').forEach(button => {
+                button.removeEventListener('click', handleResetIp);
+                button.addEventListener('click', handleResetIp);
+            });
+            document.querySelectorAll('.delete-ip-button').forEach(button => {
+                button.removeEventListener('click', handleDeleteIp);
+                button.addEventListener('click', handleDeleteIp);
+            });
+        }
+        async function handleResetIp(e) {
+            const targetButton = e.currentTarget;
+            const ip = targetButton.dataset.ip;
+            if (!confirm(`Reset registration count for IP ${ip}? This will allow this IP to register new accounts again.`)) return;
+            targetButton.disabled = true;
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/ips/${ip}/reset`, 'PUT');
+                showToast(`Registration count reset for IP ${ip}.`);
+                await loadIps();
+            } catch (error) {
+                showToast(`Failed to reset registration count: ${error.message}`, true);
+                targetButton.disabled = false;
+                targetButton.innerHTML = `<i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+            }
+        }
+        async function handleDeleteIp(e) {
+            const targetButton = e.currentTarget;
+            const ip = targetButton.dataset.ip;
+            if (!confirm(`Delete all registration records for IP ${ip}? This will permanently remove this IP from the monitoring system.`)) return;
+            targetButton.disabled = true;
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/ips/${ip}`, 'DELETE');
+                showToast(`Registration records deleted for IP ${ip}.`);
+                await loadIps();
+            } catch (error) {
+                showToast(`Failed to delete registration records: ${error.message}`, true);
+                targetButton.disabled = false;
+                targetButton.innerHTML = `<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+            }
+        }
+        async function loadRequests() {
+            if (!requestListBody) return;
+            requestListBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><div class="loading-shimmer w-8 h-8 rounded-lg"></div><span>Loading requests...</span></div></td></tr>';
+            try {
+                const requests = await makeAdminApiCall('/requests');
+                requestListBody.innerHTML = '';
+                if (requests && requests.length > 0) {
+                    requests.forEach(req => {
+                        const row = document.createElement('tr');
+                        row.classList.add('hover:bg-table-row-hover', 'transition-all', 'duration-300');
+                        row.innerHTML = `<td><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xs font-bold">${req.username.charAt(0).toUpperCase()}</div><span class="font-semibold">${req.username}</span></div></td><td><span class="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-primary to-secondary text-white">${req.planRequested}</span></td><td class="text-text-muted font-mono text-xs">${formatAdminDate(req.requestTimestamp)}</td><td class="text-center"><div class="flex justify-center gap-1"><button data-reqid="${req.requestId}" class="approve-request-button table-action-button bg-action-green hover:bg-green-700 text-white" title="Approve Request"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i></button><button data-reqid="${req.requestId}" class="reject-request-button table-action-button bg-action-red hover:bg-red-700 text-white" title="Reject Request"><i data-lucide="x-circle" class="w-3.5 h-3.5"></i></button></div></td>`;
+                        requestListBody.appendChild(row);
+                    });
+                    attachRequestButtonListeners();
+                    lucide.createIcons();
+                } else {
+                    requestListBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><i data-lucide="user-plus" class="w-8 h-8 opacity-50"></i><span>No pending requests.</span></div></td></tr>';
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                requestListBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-400"><div class="flex flex-col items-center gap-2"><i data-lucide="alert-circle" class="w-8 h-8"></i><span>Failed to load requests: ${error.message}</span></div></td></tr>`;
+                lucide.createIcons();
+            }
+        }
+
+        function attachRequestButtonListeners() {
+            document.querySelectorAll('.approve-request-button').forEach(button => {
+                button.removeEventListener('click', handleApproveRequest);
+                button.addEventListener('click', handleApproveRequest);
+            });
+            document.querySelectorAll('.reject-request-button').forEach(button => {
+                button.removeEventListener('click', handleRejectRequest);
+                button.addEventListener('click', handleRejectRequest);
+            });
+        }
+        async function handleApproveRequest(e) {
+            const targetButton = e.currentTarget;
+            const reqId = targetButton.dataset.reqid;
+            if (!confirm(`Approve this request?`)) return;
+            targetButton.disabled = true;
+            const rejectBtn = targetButton.closest('td').querySelector('.reject-request-button');
+            if (rejectBtn) rejectBtn.disabled = true;
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/requests/${reqId}/approve`, 'PUT');
+                showToast('Request approved!');
+                await loadRequests();
+                allUsersCache = [];
+                await loadUsers(adminUserSearchInput.value.trim());
+            } catch (error) {
+                showToast(`Failed to approve: ${error.message}`, true);
+                targetButton.disabled = false;
+                if (rejectBtn) rejectBtn.disabled = false;
+                targetButton.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+            }
+        }
+        async function handleRejectRequest(e) {
+            const targetButton = e.currentTarget;
+            const reqId = targetButton.dataset.reqid;
+            if (!confirm(`Reject this request?`)) return;
+            targetButton.disabled = true;
+            const approveBtn = targetButton.closest('td').querySelector('.approve-request-button');
+            if (approveBtn) approveBtn.disabled = true;
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/requests/${reqId}/reject`, 'PUT');
+                showToast('Request rejected.');
+                await loadRequests();
+            } catch (error) {
+                showToast(`Failed to reject: ${error.message}`, true);
+                targetButton.disabled = false;
+                if (approveBtn) approveBtn.disabled = false;
+                targetButton.innerHTML = `<i data-lucide="x-circle" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+            }
+        }
+        adminLoginForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const btn = adminLoginForm.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.innerHTML = '<i data-lucide="loader-circle" class="w-5 h-5 mr-2 animate-spin"></i>Authenticating...';
+                btn.disabled = true;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL_ADMIN}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.token && data.user?.isAdmin) {
+                    localStorage.setItem('adminAuthToken', data.token);
+                    setAdminLoggedInState();
+                    showToast('Welcome to the admin dashboard!');
+                } else {
+                    let errorMsg = data.error || 'Admin login failed.';
+                    if (data.user && !data.user.isAdmin && response.ok) errorMsg = 'Not an admin user.';
+                    else if (!response.ok) errorMsg = data.error || `Login failed status ${response.status}`;
+                    throw new Error(errorMsg);
+                }
+            } catch (error) {
+                showToast(`Login Error: ${error.message}`, true);
+                setAdminLoggedOutState();
+            } finally {
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="lock" class="w-5 h-5 mr-2"></i>Access Dashboard';
+                    btn.disabled = false;
+                    lucide.createIcons();
+                }
+            }
+        });
+        logoutButtonAdmin?.addEventListener('click', () => {
+            setAdminLoggedOutState();
+            showToast("Successfully logged out from admin dashboard.");
+        });
+
+        function setActiveAdminSection(sectionName) {
+            adminSections.forEach(s => s.classList.remove('active'));
+            const targetSection = document.getElementById(`admin-${sectionName}-section`);
+            if (targetSection) targetSection.classList.add('active');
+            adminNavButtons.forEach(btn => {
+                const isTarget = btn.dataset.section === sectionName;
+                btn.classList.toggle('active-nav', isTarget);
+            });
+            if (sectionName === 'users') loadUsers(adminUserSearchInput?.value.trim() || '');
+            if (sectionName === 'requests') loadRequests();
+            if (sectionName === 'ips') loadIps();
+            if (sectionName === 'announcements') loadAnnouncements();
+        }
+
+        async function loadAnnouncements() {
+            if (!announcementsListBody) return;
+            announcementsListBody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><div class="loading-shimmer w-8 h-8 rounded-lg"></div><span>Loading announcements...</span></div></td></tr>';
+            try {
+                const response = await fetch('/api/announcements');
+                if (!response.ok) throw new Error('Failed to fetch announcements');
+                const announcements = await response.json();
+                announcementsListBody.innerHTML = '';
+                if (announcements && announcements.length > 0) {
+                    announcements.forEach(announcement => {
+                        const row = document.createElement('tr');
+                        row.classList.add('hover:bg-table-row-hover', 'transition-all', 'duration-300');
+                        const typeColors = {
+                            'info': {
+                                color: 'text-blue-400',
+                                bg: 'bg-blue-400/10',
+                                border: 'border-blue-400/30',
+                                icon: 'info'
+                            },
+                            'warning': {
+                                color: 'text-yellow-400',
+                                bg: 'bg-yellow-400/10',
+                                border: 'border-yellow-400/30',
+                                icon: 'alert-triangle'
+                            },
+                            'success': {
+                                color: 'text-green-400',
+                                bg: 'bg-green-400/10',
+                                border: 'border-green-400/30',
+                                icon: 'check-circle'
+                            },
+                            'error': {
+                                color: 'text-red-400',
+                                bg: 'bg-red-400/10',
+                                border: 'border-red-400/30',
+                                icon: 'x-circle'
+                            }
+                        };
+                        const typeStyle = typeColors[announcement.type] || typeColors.info;
+                        row.innerHTML = `
+                            <td>
+                                <div class="max-w-xs">
+                                    <div class="font-semibold text-text-main truncate mb-1">${announcement.title}</div>
+                                    <div class="text-xs text-text-muted truncate opacity-75">${announcement.content}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${typeStyle.color} ${typeStyle.bg} border ${typeStyle.border} flex items-center gap-1 w-fit">
+                                    <i data-lucide="${typeStyle.icon}" class="w-3 h-3"></i>
+                                    ${announcement.type.charAt(0).toUpperCase() + announcement.type.slice(1)}
+                                </span>
+                            </td>
+                            <td class="text-text-muted">${announcement.created_by_username}</td>
+                            <td class="text-text-muted font-mono text-xs">${formatAdminDate(announcement.created_at)}</td>
+                            <td class="text-center">
+                                <button data-announcement-id="${announcement.id}" class="delete-announcement-button table-action-button bg-action-red hover:bg-red-700 text-white" title="Delete Announcement">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </td>
+                        `;
+                        announcementsListBody.appendChild(row);
+                    });
+                    attachAnnouncementButtonListeners();
+                    lucide.createIcons();
+                } else {
+                    announcementsListBody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-text-muted"><div class="flex flex-col items-center gap-2"><i data-lucide="megaphone" class="w-8 h-8 opacity-50"></i><span>No announcements found.</span></div></td></tr>';
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                announcementsListBody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-400"><div class="flex flex-col items-center gap-2"><i data-lucide="alert-circle" class="w-8 h-8"></i><span>Failed to load announcements: ${error.message}</span></div></td></tr>`;
+                lucide.createIcons();
+            }
+        }
+
+        function attachAnnouncementButtonListeners() {
+            document.querySelectorAll('.delete-announcement-button').forEach(button => {
+                button.removeEventListener('click', handleDeleteAnnouncement);
+                button.addEventListener('click', handleDeleteAnnouncement);
+            });
+        }
+
+        async function handleDeleteAnnouncement(e) {
+            const targetButton = e.currentTarget;
+            const announcementId = targetButton.dataset.announcementId;
+            if (!confirm(`Delete this announcement?`)) return;
+            targetButton.disabled = true;
+            targetButton.innerHTML = `<i data-lucide="loader-circle" class="w-3.5 h-3.5 animate-spin"></i>`;
+            lucide.createIcons();
+            try {
+                await makeAdminApiCall(`/announcements/${announcementId}`, 'DELETE');
+                showToast('Announcement deleted successfully.');
+                await loadAnnouncements();
+            } catch (error) {
+                showToast(`Failed to delete announcement: ${error.message}`, true);
+                targetButton.disabled = false;
+                targetButton.innerHTML = `<i data-lucide="trash-2" class="w-3.5 h-3.5"></i>`;
+                lucide.createIcons();
+            }
+        }
+
+        createAnnouncementBtn?.addEventListener('click', () => {
+            announcementForm.classList.remove('hidden');
+            createAnnouncementBtn.style.display = 'none';
+            document.getElementById('announcement-title').focus();
+        });
+
+        cancelAnnouncementBtn?.addEventListener('click', () => {
+            announcementForm.classList.add('hidden');
+            createAnnouncementBtn.style.display = 'block';
+            createAnnouncementForm.reset();
+        });
+
+        createAnnouncementForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('announcement-title').value;
+            const content = document.getElementById('announcement-content').value;
+            const type = document.getElementById('announcement-type').value;
+            const submitBtn = document.getElementById('submit-announcement-btn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 mr-1 animate-spin"></i>Creating...';
+            lucide.createIcons();
+
+            try {
+                await makeAdminApiCall('/announcements', 'POST', {
+                    title,
+                    content,
+                    type
+                });
+                showToast('Announcement created successfully!');
+                createAnnouncementForm.reset();
+                announcementForm.classList.add('hidden');
+                createAnnouncementBtn.style.display = 'block';
+                await loadAnnouncements();
+            } catch (error) {
+                showToast(`Failed to create announcement: ${error.message}`, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-1"></i>Create';
+                lucide.createIcons();
+            }
+        });
+        adminNavButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                setActiveAdminSection(button.dataset.section);
+            });
+        });
+        if (adminAuthToken) {
+            setAdminLoggedInState();
+        } else {
+            setAdminLoggedOutState();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile Guard Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#121212">
+    <link rel="icon" href="https://i.ibb.co/XMt6WT5/Messenger-creation-4221662014720117.jpg" type="image/png">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        roboto: ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#E700FE',
+                        secondary: '#00C3FF',
+                        background: '#121212',
+                        'card-bg': '#2d2d39',
+                        'input-bg': '#1e1e26',
+                        'text-main': '#fff',
+                        'text-muted': '#ccc',
+                        'border-light': '#444',
+                        error: '#ff6b6b',
+                        success: '#51cf66',
+                        'status-active': '#22c55e',
+                        'status-offline': '#ef4444',
+                        'warning': '#f59e0b',
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(231, 0, 254, 0.3)',
+                        'card': '0 5px 20px rgba(0, 0, 0, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #E700FE;
+            --secondary-color: #00C3FF;
+            --card-bg: #2d2d39;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: contain;
+            background-color: theme('colors.background');
+            color: theme('colors.text-main');
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c400db;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 1050;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content-box {
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 300px;
+            max-width: 90%;
+            border: 1px solid theme('colors.primary');
+            background-color: theme('colors.card-bg');
+            color: theme('colors.text-main');
+            animation: modalScaleUp 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes modalScaleUp {
+            from {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content-box.success {
+            border-left: 5px solid theme('colors.success');
+        }
+
+        .modal-content-box.error {
+            border-left: 5px solid theme('colors.error');
+        }
+
+        .nav-indicator {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus,
+        button:focus-visible {
+            outline: 2px solid theme('colors.primary') !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(231, 0, 254, 0.2);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .status-badge-active {
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #86efac;
+        }
+
+        .status-badge-offline {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        .status-badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            color: #fcd34d;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid;
+        }
+
+        .notification-item i {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .notification-item div h4 {
+            font-size: 1em;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
+
+        .notification-item div p {
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .notification-item.warning {
+            border-color: theme('colors.warning');
+            background-color: rgba(245, 158, 11, 0.05);
+        }
+
+        .notification-item.warning i {
+            color: theme('colors.warning');
+        }
+
+        .notification-item.warning h4 {
+            color: theme('colors.warning');
+        }
+
+        .notification-item.warning p {
+            color: #fde68a;
+        }
+
+        .notification-item.warning a {
+            color: #fef3c7;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-text-main">
+    <div class="max-w-md mx-auto min-h-screen pb-20 flex flex-col relative overflow-x-hidden">
+
+        <header class="p-4 border-b border-b-border-light sticky top-0 z-40 bg-background/90 backdrop-blur-md">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-main">Profile Guard</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow overflow-y-auto p-5">
+            <div class="content-sections">
+                <section id="login-section" class="content-section active">
+                    <div class="space-y-5 mt-2">
+                        <div class="rotating-border-container">
+                            <div class="inner-content">
+                                <h2 class="section-title animated-text text-center mb-4">Login to Profile Guard</h2>
+                                <div>
+                                    <label for="appStateInput" class="text-sm font-medium text-text-muted mb-1.5 block flex items-center gap-1.5">
+                                        <i data-lucide="key-round" class="w-4 h-4 text-primary"></i> Appstate:
+                                    </label>
+                                    <textarea id="appStateInput" rows="6" class="w-full p-3 rounded-lg border bg-input-bg border-border-light text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm" placeholder="Paste your Facebook appstate JSON here..." required></textarea>
+                                </div>
+
+                                <button type="button" id="loginButton" class="w-full bg-primary text-white py-3 rounded-lg font-semibold text-base hover:bg-primary-darker transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg shadow-primary/30 active:scale-[0.98] mt-4">
+                                    <span class="button-icon"><i data-lucide="log-in" class="w-5 h-5"></i></span>
+                                    <span class="button-text">Login</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="login-status" class="status-message hidden mt-4 text-center text-sm"></div>
+                    </div>
+                </section>
+
+                <section id="control-section" class="content-section">
+                    <div class="rotating-border-container">
+                        <div class="inner-content">
+                            <h2 class="section-title animated-text text-center mb-4">Control Panel</h2>
+                            <div class="p-4 bg-card-bg rounded-xl border border-border-light shadow-card space-y-4 mb-6">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-text-muted flex items-center gap-1.5"><i data-lucide="user" class="w-4 h-4 text-primary"></i> User ID:</span>
+                                    <span id="userIdDisplay" class="font-medium text-text-main font-mono text-xs break-all">Not Logged In</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-text-muted flex items-center gap-1.5"><i data-lucide="shield" class="w-4 h-4 text-primary"></i> Guard Status:</span>
+                                    <span id="guardStatusDisplay" class="status-badge">Unknown</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <button type="button" id="enableGuardButton" class="bg-primary text-white py-3 px-4 rounded-lg font-semibold text-sm hover:bg-primary-darker transition-all duration-300 flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+                                    <i data-lucide="shield-check" class="w-4 h-4"></i> Enable
+                                </button>
+                                <button type="button" id="disableGuardButton" class="bg-secondary text-white py-3 px-4 rounded-lg font-semibold text-sm hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-1.5 shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+                                    <i data-lucide="shield-off" class="w-4 h-4"></i> Disable
+                                </button>
+                            </div>
+
+                            <button type="button" id="logoutButton" class="w-full bg-error text-white py-3 rounded-lg font-semibold text-base hover:bg-red-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed">
+                                <i data-lucide="log-out" class="w-5 h-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                    <div id="control-status" class="status-message hidden mt-4 text-center text-sm"></div>
+                </section>
+
+                <section id="proof-section" class="content-section">
+                    <div class="rotating-border-container">
+                        <div class="inner-content">
+                            <h2 class="section-title animated-text text-center mb-4">Proof of Concept</h2>
+                            <div class="p-4 bg-card-bg rounded-xl border border-border-light shadow-card space-y-6">
+                                <div class="text-center">
+                                    <h3 class="text-md font-medium text-text-muted mb-3">Before (Guard Off)</h3>
+                                    <img src="https://i.ibb.co/HDzLvS5W/Screenshot-20250716-161311-Lite.jpg" alt="Profile picture without the guard effect" class="rounded-lg border border-border-light w-full h-auto shadow-md">
+                                </div>
+                                <div class="text-center">
+                                    <h3 class="text-md font-medium text-text-muted mb-3">After (Guard On)</h3>
+                                    <img src="https://i.ibb.co/XfJd2Gck/Screenshot-20250716-161418-Lite.jpg" alt="Profile picture with the guard effect applied" class="rounded-lg border border-primary w-full h-auto shadow-md shadow-primary/20">
+                                </div>
+                                <p class="text-xs text-center text-text-muted pt-2">This demonstrates the visual change when the profile guard is active.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="warnings-section" class="content-section">
+                    <div class="rotating-border-container">
+                        <div class="inner-content">
+                            <h2 class="section-title animated-text text-center mb-4">Important Reminders</h2>
+                            <div class="notification-item warning">
+                                <i data-lucide="key-round"></i>
+                                <div>
+                                    <h4>Keep your appState Secure</h4>
+                                    <p>Do <strong>NOT</strong> share it. Leaked appState can compromise your account.</p>
+                                </div>
+                            </div>
+                            <div class="notification-item warning">
+                                <i data-lucide="gavel"></i>
+                                <div>
+                                    <h4>Terms of Service</h4>
+                                    <p>Automation might violate Facebook's terms, possibly leading to account <strong>restrictions</strong> or getting <strong>banned</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="notification-item warning">
+                                <i data-lucide="heart-handshake"></i>
+                                <div>
+                                    <h4>Use Responsibly</h4>
+                                    <p>For educational/experimental use only. Do not use for malicious activities.</p>
+                                </div>
+                            </div>
+                            <div class="notification-item warning">
+                                <i data-lucide="wrench"></i>
+                                <div>
+                                    <h4>No Guarantee</h4>
+                                    <p>Facebook updates may break this tool without notice.</p>
+                                </div>
+                            </div>
+                            <div class="notification-item warning">
+                                <i data-lucide="shield-alert"></i>
+                                <div>
+                                    <h4>Developer Liability</h4>
+                                    <p>Use entirely <strong>at your own risk</strong>. The developer is not responsible for any negative consequences.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 bg-background/90 border-t border-t-border-light max-w-md mx-auto backdrop-blur-md z-50">
+            <div class="relative">
+                <div class="flex justify-around items-center px-3 py-2.5">
+                    <a href="#" data-section="login" id="nav-login-control" class="nav-item flex flex-col items-center text-primary p-2 w-1/3">
+                        <span id="nav-login-control-icon"><i data-lucide="log-in" class="w-5 h-5 mb-0.5"></i></span>
+                        <span id="nav-login-control-text" class="text-xs font-medium">Login</span>
+                    </a>
+                    <a href="#" data-section="proof" class="nav-item flex flex-col items-center text-text-muted p-2 w-1/3 hover:text-primary transition-colors">
+                        <i data-lucide="image" class="w-5 h-5 mb-0.5"></i><span class="text-xs font-medium">Proof</span>
+                    </a>
+                    <a href="#" data-section="warnings" class="nav-item flex flex-col items-center text-text-muted p-2 w-1/3 hover:text-primary transition-colors">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 mb-0.5"></i><span class="text-xs font-medium">Warnings</span>
+                    </a>
+                </div>
+                <div class="nav-indicator absolute bottom-0 left-0 h-1 bg-primary rounded-t-full" style="width: 33.33%"></div>
+            </div>
+        </nav>
+
+        <div id="responseModal" class="modal-overlay">
+            <div class="modal-content-box flex flex-col items-center gap-3">
+                <div id="modal-icon" class="mb-2"></div>
+                <div id="responseMessage" class="text-sm font-medium"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <style>
+        .rotating-border-container {
+            position: relative;
+            display: block;
+            width: 100%;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 10px auto;
+            padding: 3px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .rotating-border-container::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 250%;
+            height: 250%;
+            background: conic-gradient(from 0deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+            transform: translate(-50%, -50%);
+            animation: rotating 4s linear infinite;
+            z-index: 1;
+        }
+
+        .rotating-border-container>.inner-content {
+            position: relative;
+            z-index: 2;
+            display: block;
+            border-radius: 22px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            text-align: left;
+        }
+
+        .section-title.animated-text {
+            font-size: 22px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--primary-color), var(--secondary-color), var(--primary-color));
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-fill-color: transparent;
+            animation: textShine 5s linear infinite;
+        }
+
+        @keyframes rotating {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @keyframes textShine {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: -300% center;
+            }
+        }
+    </style>
+
+    <script>
+        const html = document.documentElement;
+        lucide.createIcons();
+
+        const loginSection = document.getElementById('login-section');
+        const controlSection = document.getElementById('control-section');
+        const proofSection = document.getElementById('proof-section');
+        const warningsSection = document.getElementById('warnings-section');
+        const appStateInput = document.getElementById('appStateInput');
+        const loginButton = document.getElementById('loginButton');
+        const loginStatusDiv = document.getElementById('login-status');
+        const controlStatusDiv = document.getElementById('control-status');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const guardStatusDisplay = document.getElementById('guardStatusDisplay');
+        const enableGuardButton = document.getElementById('enableGuardButton');
+        const disableGuardButton = document.getElementById('disableGuardButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const responseModal = document.getElementById('responseModal');
+        const responseMessageElement = document.getElementById('responseMessage');
+        const responseModalIconElement = document.getElementById('modal-icon');
+        const navItems = document.querySelectorAll('.nav-item');
+        const navIndicator = document.querySelector('.nav-indicator');
+        const contentSections = document.querySelectorAll('.content-section');
+        const navLoginControl = document.getElementById('nav-login-control');
+        const navLoginControlIcon = document.getElementById('nav-login-control-icon');
+        const navLoginControlText = document.getElementById('nav-login-control-text');
+
+        let isLoggedInState = false;
+
+        function showModal(message, type = 'info') {
+            responseMessageElement.textContent = message;
+            responseModal.style.display = 'flex';
+            const modalContent = responseModal.querySelector('.modal-content-box');
+            modalContent.className = 'modal-content-box flex flex-col items-center gap-3';
+            let iconName = 'info';
+            let iconColorClass = 'text-primary';
+
+            if (type === 'success') {
+                modalContent.classList.add('success');
+                iconName = 'check-circle-2';
+                iconColorClass = 'text-success';
+            } else if (type === 'error') {
+                modalContent.classList.add('error');
+                iconName = 'alert-circle';
+                iconColorClass = 'text-error';
+            } else if (type === 'loading') {
+                iconName = 'loader-circle';
+                iconColorClass = 'text-primary';
+                responseModalIconElement.innerHTML = `<i data-lucide="${iconName}" class="w-10 h-10 ${iconColorClass} animate-spin"></i>`;
+                lucide.createIcons();
+                return;
+            }
+
+            responseModalIconElement.innerHTML = `<i data-lucide="${iconName}" class="w-10 h-10 ${iconColorClass}"></i>`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                if (responseModal.style.display === 'flex') {
+                    responseModal.style.display = 'none';
+                }
+            }, 4000);
+        }
+
+        responseModal.addEventListener('click', (event) => {
+            if (event.target === responseModal) {
+                responseModal.style.display = 'none';
+            }
+        });
+
+        function updateButtonState(button, text, iconName, isProcessing = false, isDisabled = false) {
+            const textElement = button.querySelector('.button-text');
+            const iconElement = button.querySelector('.button-icon');
+            if (textElement) textElement.textContent = text;
+            if (iconElement) {
+                iconElement.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5 ${isProcessing ? 'animate-spin' : ''}"></i>`;
+                lucide.createIcons();
+            }
+            button.disabled = isProcessing || isDisabled;
+        }
+
+        function updateUI(loggedIn, userId = null, profileGuard = false) {
+            isLoggedInState = loggedIn;
+            if (loggedIn) {
+                setActiveSection('control');
+                userIdDisplay.textContent = userId || 'N/A';
+                guardStatusDisplay.textContent = profileGuard ? 'Enabled' : 'Disabled';
+                guardStatusDisplay.className = profileGuard ? 'status-badge status-badge-active' : 'status-badge status-badge-offline';
+                navLoginControl.dataset.section = 'control';
+                navLoginControlIcon.innerHTML = `<i data-lucide="sliders-horizontal" class="w-5 h-5 mb-0.5"></i>`;
+                navLoginControlText.textContent = 'Controls';
+                lucide.createIcons();
+            } else {
+                setActiveSection('login');
+                userIdDisplay.textContent = 'Not Logged In';
+                guardStatusDisplay.textContent = 'Unknown';
+                guardStatusDisplay.className = 'status-badge status-badge-warning';
+                navLoginControl.dataset.section = 'login';
+                navLoginControlIcon.innerHTML = `<i data-lucide="log-in" class="w-5 h-5 mb-0.5"></i>`;
+                navLoginControlText.textContent = 'Login';
+                lucide.createIcons();
+            }
+            hideStatusMessage(loginStatusDiv);
+            hideStatusMessage(controlStatusDiv);
+            enableGuardButton.disabled = !loggedIn;
+            disableGuardButton.disabled = !loggedIn;
+            logoutButton.disabled = !loggedIn;
+        }
+
+        function setActiveSection(sectionName) {
+            const targetSectionId = `${sectionName}-section`;
+            const targetSection = document.getElementById(targetSectionId);
+            contentSections.forEach(section => section.classList.remove('active'));
+
+            if (targetSection) {
+                targetSection.classList.add('active');
+            } else {
+                document.getElementById('login-section').classList.add('active');
+                sectionName = 'login';
+            }
+
+            let activeNavItem = null;
+            navItems.forEach(item => {
+                if (item.id === 'nav-login-control' && (sectionName === 'login' || sectionName === 'control')) {
+                    activeNavItem = item;
+                } else if (item.dataset.section === sectionName) {
+                    activeNavItem = item;
+                }
+            });
+
+            if (activeNavItem) {
+                setActiveNavIndicator(activeNavItem);
+            } else {
+                setActiveNavIndicator(navLoginControl);
+            }
+        }
+
+        function setActiveNavIndicator(activeItem) {
+            let activeIndex = 0;
+            const navItemCount = navItems.length;
+
+            navItems.forEach((navItem, index) => {
+                if (navItem === activeItem) {
+                    navItem.classList.remove('text-text-muted');
+                    navItem.classList.add('text-primary');
+                    activeIndex = index;
+                } else {
+                    navItem.classList.remove('text-primary');
+                    navItem.classList.add('text-text-muted');
+                }
+            });
+
+            const indicatorWidthPercent = 100 / navItemCount;
+            navIndicator.style.width = `${indicatorWidthPercent}%`;
+            navIndicator.style.transform = `translateX(${activeIndex * 100}%)`;
+        }
+
+        navItems.forEach((item) => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                let targetSectionName = this.dataset.section;
+                if (item.id === 'nav-login-control') {
+                    targetSectionName = isLoggedInState ? 'control' : 'login';
+                }
+                setActiveSection(targetSectionName);
+            });
+        });
+
+        function hideStatusMessage(element) {
+            if (element) {
+                element.classList.add('hidden');
+                element.textContent = '';
+            }
+        }
+
+
+        async function fetchAPI(endpoint, options = {}) {
+            if (!options.headers) {
+                options.headers = {};
+            }
+            if (options.body && typeof options.body === 'object' && !(options.headers['Content-Type'])) {
+                options.headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
+            }
+
+            try {
+                const response = await fetch(`/api/facebook${endpoint}`, options);
+                const data = await response.json();
+                if (!response.ok) {
+                    const error = new Error(data.error || `HTTP error! status: ${response.status}`);
+                    error.status = response.status;
+                    error.data = data;
+                    throw error;
+                }
+                return data;
+            } catch (error) {
+                console.error(`API Error (${endpoint}):`, error);
+                if (error.status === 401) {
+                    console.log("Session likely expired or invalid. Updating UI to logged out state.");
+                    updateUI(false);
+                }
+                throw error;
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const data = await fetchAPI('/status');
+                updateUI(true, data.userId, data.profileGuard);
+            } catch (error) {
+                updateUI(false);
+                if (error.status !== 401) {
+                    console.error('Status Check Error:', error.message);
+                } else {
+                    console.log("Initial status check: Not logged in or session invalid.");
+                }
+            } finally {
+                const initialSection = isLoggedInState ? 'control' : 'login';
+                setActiveSection(initialSection);
+            }
+        }
+
+        async function loginUser() {
+            hideStatusMessage(loginStatusDiv);
+            const appStateString = appStateInput.value.trim();
+            let appStateArray;
+            try {
+                appStateArray = JSON.parse(appStateString);
+                if (!Array.isArray(appStateArray) || appStateArray.length === 0) {
+                    throw new Error("Input must be a non-empty JSON array.");
+                }
+            } catch (e) {
+                showModal('Invalid appState format. Please paste the correct JSON array.', 'error');
+                return;
+            }
+            updateButtonState(loginButton, 'Logging in...', 'loader-circle', true);
+            try {
+                const data = await fetchAPI('/login', {
+                    method: 'POST',
+                    body: {
+                        appState: appStateArray
+                    }
+                });
+                showModal(data.message || 'Login successful!', 'success');
+                updateUI(true, data.userId, data.profileGuard);
+                appStateInput.value = '';
+            } catch (error) {
+                showModal(error.message || 'Login failed.', 'error');
+                updateUI(false);
+            } finally {
+                updateButtonState(loginButton, 'Login', 'log-in', false);
+                loginButton.disabled = isLoggedInState;
+            }
+        }
+
+        async function setGuard(enable) {
+            hideStatusMessage(controlStatusDiv);
+            enableGuardButton.disabled = true;
+            disableGuardButton.disabled = true;
+            const buttonToUpdate = enable ? enableGuardButton : disableGuardButton;
+            const originalContent = buttonToUpdate.innerHTML;
+            buttonToUpdate.innerHTML = `<i data-lucide="loader-circle" class="w-4 h-4 animate-spin mx-auto"></i>`;
+            lucide.createIcons();
+
+            try {
+                const data = await fetchAPI('/set-guard', {
+                    method: 'POST',
+                    body: {
+                        enable: enable
+                    }
+                });
+                showModal(data.message || `Guard ${enable ? 'enabled' : 'disabled'}.`, 'success');
+                guardStatusDisplay.textContent = data.profileGuard ? 'Enabled' : 'Disabled';
+                guardStatusDisplay.className = data.profileGuard ? 'status-badge status-badge-active' : 'status-badge status-badge-offline';
+            } catch (error) {
+                showModal(error.message || 'Failed to update guard status.', 'error');
+                console.error("setGuard failed:", error);
+            } finally {
+                buttonToUpdate.innerHTML = originalContent;
+                lucide.createIcons();
+                enableGuardButton.disabled = !isLoggedInState;
+                disableGuardButton.disabled = !isLoggedInState;
+            }
+        }
+
+        async function logoutUser() {
+            hideStatusMessage(controlStatusDiv);
+            logoutButton.disabled = true;
+            logoutButton.innerHTML = `<span class="button-icon"><i data-lucide="loader-circle" class="w-5 h-5 animate-spin"></i></span><span class="button-text">Logging out...</span>`;
+            lucide.createIcons();
+
+            try {
+                const data = await fetchAPI('/logout', {
+                    method: 'POST'
+                });
+                showModal(data.message || 'Logged out successfully.', 'success');
+            } catch (error) {
+                showModal(error.message || 'Logout attempt finished. Cleared local session.', 'error');
+                console.error("Logout error:", error);
+            } finally {
+                updateUI(false);
+                logoutButton.innerHTML = `<i data-lucide="log-out" class="w-5 h-5"></i> Logout`;
+                lucide.createIcons();
+                logoutButton.disabled = true;
+                enableGuardButton.disabled = true;
+                disableGuardButton.disabled = true;
+                loginButton.disabled = false;
+            }
+        }
+
+        loginButton.addEventListener('click', loginUser);
+        enableGuardButton.addEventListener('click', () => setGuard(true));
+        disableGuardButton.addEventListener('click', () => setGuard(false));
+        logoutButton.addEventListener('click', logoutUser);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLoginStatus();
+        });
+    </script>
+</body>
+
+</html>
